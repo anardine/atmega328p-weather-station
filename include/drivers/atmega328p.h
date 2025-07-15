@@ -70,6 +70,8 @@ typedef struct {
 #define ENABLE          HIGH
 #define DISABLE         LOW
 
+#define F_CPU           8000000UL
+
 
 // Base addresses for peripherals (from ATmega328P datasheet)
 #define GPIOB_BASE   0x23   // Base address for GPIO Port B registers
