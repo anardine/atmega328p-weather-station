@@ -7,7 +7,7 @@ The flash is to store data if the wifi reports failure on connection. The data i
 [!IMPORTANT]
 This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose.
 
-#Architecture
+# Architecture
 This is the architectural diagram of the design:
 ```
 
