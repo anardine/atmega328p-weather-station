@@ -64,8 +64,6 @@ typedef struct {
     uint8_t twamr;     // TWI (Slave) Address Mask Register
 } TWI_TypeDef;
 
-#define F_CPU 16000000UL  // 16 MHz external crystal. This is mainly used to calculate I2C specifics. There is no clock setup done in code, instead, use fuses to do so.
-
 #define HIGH            1
 #define LOW             0
 
@@ -119,8 +117,19 @@ typedef struct {
 // TWI pointer (cast base address to TWI_TypeDef pointer)
 #define TWI1    (*(volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
 
+// Bit positions for TWI registers (ATmega328P)
+#define TWI_ENABLE_ACK  (1 << 6)   // TWEA
+#define TWI_START       (1 << 5)   // TWSTA
+#define TWI_STOP        (1 << 4)   // TWSTO
+#define TWI_ENABLE      (1 << 2)   // TWEN
+#define TWI_INTERRUPT   (1 << 7)   // TWINT
 
-
-
+#define TW_STATUS_MASK  0xF8
+#define TW_START_VAL    0x08
+#define TW_MT_SLA_ACK   0x18
+#define TW_MT_DATA_ACK  0x28
+#define TW_MR_SLA_ACK   0x40
+#define TW_MR_DATA_ACK  0x50
+#define TW_MR_DATA_NACK 0x58
 
 #endif // ATMEGA328P_H   // End of include guard
