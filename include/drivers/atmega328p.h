@@ -72,7 +72,6 @@ typedef struct {
 
 #define F_CPU           8000000UL
 
-
 // Base addresses for peripherals (from ATmega328P datasheet)
 #define GPIOB_BASE   0x23   // Base address for GPIO Port B registers
 #define GPIOC_BASE   0x26   // Base address for GPIO Port C registers
@@ -133,5 +132,36 @@ typedef struct {
 #define TW_MR_SLA_ACK   0x40
 #define TW_MR_DATA_ACK  0x50
 #define TW_MR_DATA_NACK 0x58
+
+
+
+// SPI configuration macros for ATmega328P
+#define SPI_MODE_MASTER      1
+#define SPI_MODE_SLAVE       0
+
+#define SPI_DATA_ORDER_MSB   0
+#define SPI_DATA_ORDER_LSB   1
+
+#define SPI_CLOCK_POL_LOW    0   // SCK idle low
+#define SPI_CLOCK_POL_HIGH   1   // SCK idle high
+
+#define SPI_CLOCK_PHASE_LEAD 0   // Sample on leading edge
+#define SPI_CLOCK_PHASE_TRAIL 1  // Sample on trailing edge
+
+// SPI Clock Rate Select (SPR1:SPR0 in SPCR, SPI2X in SPSR)
+#define SPI_CLOCK_DIV4       0   // Fosc/4
+#define SPI_CLOCK_DIV16      1   // Fosc/16
+#define SPI_CLOCK_DIV64      2   // Fosc/64
+#define SPI_CLOCK_DIV128     3   // Fosc/128
+#define SPI_CLOCK_DOUBLE     1   // Double speed (SPI2X=1)
+
+#define SPI_INT_DISABLE      0
+#define SPI_INT_ENABLE       1
+
+#define SPI_SS_PIN           2   // PB2
+#define SPI_MOSI_PIN         3   // PB3
+#define SPI_MISO_PIN         4   // PB4
+#define SPI_SCK_PIN          5   // PB5
+
 
 #endif // ATMEGA328P_H   // End of include guard
