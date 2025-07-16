@@ -115,6 +115,21 @@ typedef struct {
 // SPI pointer (cast base address to SPI_TypeDef pointer)
 #define SPI1    (*(volatile SPI_TypeDef*)(SPI_BASE))          // Pointer to SPI registers
 
+// SPI Control Register (SPCR) bit positions
+#define SPE   6  // SPI Enable
+#define DORD  5  // Data Order
+#define MSTR  4  // Master/Slave Select
+#define CPOL  3  // Clock Polarity
+#define CPHA  2  // Clock Phase
+#define SPR1  1  // SPI Clock Rate Select 1
+#define SPR0  0  // SPI Clock Rate Select 0
+#define SPIE  7  // SPI Interrupt Enable
+
+// SPI Status Register (SPSR) bit positions
+#define SPIF  7  // SPI Interrupt Flag
+#define WCOL  6  // Write Collision Flag
+#define SPI2X 0  // Double SPI Speed Bit
+
 // TWI pointer (cast base address to TWI_TypeDef pointer)
 #define TWI1    (*(volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
 

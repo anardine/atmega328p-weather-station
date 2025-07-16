@@ -2,7 +2,6 @@
 #include "drivers/twi.h"
 #include "drivers/atmega328p.h"
 
-
 void twi_init(TWI_handler_t *twiHandler) {
     // Set SCL frequency (default to 100kHz if not specified)
     uint32_t scl_freq = (twiHandler->TWIConfig.speed == 0) ? 100 : twiHandler->TWIConfig.speed;

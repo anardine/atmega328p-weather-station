@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "drivers/atmega328p.h"
+#include "drivers/gpio.h"
 
 typedef struct {
     uint8_t speed;      // TWI clock speed (e.g., 100kHz, 400kHz)

@@ -1,8 +1,9 @@
-#ifndef TWI_H
-#define TWI_H
+#ifndef SPI_H
+#define SPI_H
 
 #include <stdint.h>
 #include "drivers/atmega328p.h"
+#include "drivers/gpio.h"
 
 
 typedef struct {
@@ -28,7 +29,7 @@ typedef struct
  *
  * @param spiHandler Pointer to an SPI_Handler_t structure containing configuration and peripheral pointer.
  */
-void spi_init(SPI_Handler_t *spiHandler);
+void spi_init(SPI_Handler_t *spiHandler, GPIO_handler_t *gpioHandler);
 
 /**
  * @brief Writes a byte of data over SPI and returns the received byte.
