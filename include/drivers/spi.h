@@ -29,7 +29,7 @@ typedef struct
  *
  * @param spiHandler Pointer to an SPI_Handler_t structure containing configuration and peripheral pointer.
  */
-void spi_init(SPI_Handler_t *spiHandler, GPIO_handler_t *gpioHandler);
+void spi_init(SPI_Handler_t *spiHandler);
 
 /**
  * @brief Writes a byte of data over SPI and returns the received byte.

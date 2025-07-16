@@ -25,27 +25,27 @@ void spi_init(SPI_Handler_t *spiHandler)
     
     // Set interrupt enable
     if (spiHandler->SPIConfig.interruptEnable == SPI_INT_ENABLE) {
-        spcr |= (1 << SPIE);
+        spcr |= (1 << SPI_SPIE);
     }
     
     // Set data order
     if (spiHandler->SPIConfig.dataOrder == SPI_DATA_ORDER_LSB) {
-        spcr |= (1 << DORD);
+        spcr |= (1 << SPI_DORD);
     }
     
     // Set master/slave mode
     if (spiHandler->SPIConfig.mode == SPI_MODE_MASTER) {
-        spcr |= (1 << MSTR);
+        spcr |= (1 << SPI_MSTR);
     }
     
     // Set clock polarity
     if (spiHandler->SPIConfig.clockPolarity == SPI_CLOCK_POL_HIGH) {
-        spcr |= (1 << CPOL);
+        spcr |= (1 << SPI_CPOL);
     }
     
     // Set clock phase
     if (spiHandler->SPIConfig.clockPhase == SPI_CLOCK_PHASE_TRAIL) {
-        spcr |= (1 << CPHA);
+        spcr |= (1 << SPI_CPHA);
     }
     
     // Set clock rate (SPR1:SPR0 bits)
@@ -57,12 +57,12 @@ void spi_init(SPI_Handler_t *spiHandler)
     // Configure SPSR (SPI Status Register) for double speed if needed
     uint8_t spsr = spiHandler->pToSPIx->spsr & 0xFE; // Clear SPI2X bit
     if (spiHandler->SPIConfig.doubleSpeed == SPI_CLOCK_DOUBLE) {
-        spsr |= (1 << SPI2X);
+        spsr |= (1 << SPI_SPI2X);
     }
     spiHandler->pToSPIx->spsr = spsr;
 
     // Enable SPI
-    spcr |= (1 << SPE);
+    spcr |= (1 << SPI_SPE);
 }
 
 /**
@@ -82,7 +82,7 @@ uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t data)
     spiHandler->pToSPIx->spdr = data;
     
     // Wait for transmission complete (SPIF flag in SPSR)
-    while (!(spiHandler->pToSPIx->spsr & (1 << SPIF))) {
+    while (!(spiHandler->pToSPIx->spsr & (1 << SPI_SPIF))) {
         // Wait for transmission to complete
     }
     
