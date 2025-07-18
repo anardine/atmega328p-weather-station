@@ -1,8 +1,9 @@
-#ifndef TWI_H
-#define TWI_H
+#ifndef SPI_H
+#define SPI_H
 
 #include <stdint.h>
 #include "drivers/atmega328p.h"
+#include "drivers/gpio.h"
 
 
 typedef struct {

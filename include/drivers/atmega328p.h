@@ -100,7 +100,6 @@ typedef struct {
 #define GPIO_PULL_UP        1
 #define GPIO_PULL_DOWN      0
 
-
 // Timer pointers (cast base addresses to timer struct pointers)
 #define TIMER0  (*(volatile TIMER8_TypeDef*)(TIMER0_BASE))    // Pointer to Timer/Counter0 registers (8-bit)
 #define TIMER1  (*(volatile TIMER16_TypeDef*)(TIMER1_BASE))   // Pointer to Timer/Counter1 registers (16-bit)
@@ -114,25 +113,6 @@ typedef struct {
 
 // SPI pointer (cast base address to SPI_TypeDef pointer)
 #define SPI1    (*(volatile SPI_TypeDef*)(SPI_BASE))          // Pointer to SPI registers
-
-// TWI pointer (cast base address to TWI_TypeDef pointer)
-#define TWI1    (*(volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
-
-// Bit positions for TWI registers (ATmega328P)
-#define TWI_ENABLE_ACK  (1 << 6)   // TWEA
-#define TWI_START       (1 << 5)   // TWSTA
-#define TWI_STOP        (1 << 4)   // TWSTO
-#define TWI_ENABLE      (1 << 2)   // TWEN
-#define TWI_INTERRUPT   (1 << 7)   // TWINT
-
-#define TW_STATUS_MASK  0xF8
-#define TW_START_VAL    0x08
-#define TW_MT_SLA_ACK   0x18
-#define TW_MT_DATA_ACK  0x28
-#define TW_MR_SLA_ACK   0x40
-#define TW_MR_DATA_ACK  0x50
-#define TW_MR_DATA_NACK 0x58
-
 
 
 // SPI configuration macros for ATmega328P
@@ -162,6 +142,39 @@ typedef struct {
 #define SPI_MOSI_PIN         3   // PB3
 #define SPI_MISO_PIN         4   // PB4
 #define SPI_SCK_PIN          5   // PB5
+
+// SPI Control Register (SPCR) bit positions
+#define SPI_SPE   6  // SPI Enable
+#define SPI_DORD  5  // Data Order
+#define SPI_MSTR  4  // Master/Slave Select
+#define SPI_CPOL  3  // Clock Polarity
+#define SPI_CPHA  2  // Clock Phase
+#define SPI_SPR1  1  // SPI Clock Rate Select 1
+#define SPI_SPR0  0  // SPI Clock Rate Select 0
+#define SPI_SPIE  7  // SPI Interrupt Enable
+
+// SPI SSPI_tatus Register (SPSR) bit positions
+#define SPI_SPIF  7  // SPI Interrupt Flag
+#define SPI_WCOL  6  // Write Collision Flag
+#define SPI_SPI2X 0  // Double SPI Speed Bit
+
+// TWI pointer (cast base address to TWI_TypeDef pointer)
+#define TWI1    (*(volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
+
+// Bit positions for TWI registers (ATmega328P)
+#define TWI_ENABLE_ACK  (1 << 6)   // TWEA
+#define TWI_START       (1 << 5)   // TWSTA
+#define TWI_STOP        (1 << 4)   // TWSTO
+#define TWI_ENABLE      (1 << 2)   // TWEN
+#define TWI_INTERRUPT   (1 << 7)   // TWINT
+
+#define TW_STATUS_MASK  0xF8
+#define TW_START_VAL    0x08
+#define TW_MT_SLA_ACK   0x18
+#define TW_MT_DATA_ACK  0x28
+#define TW_MR_SLA_ACK   0x40
+#define TW_MR_DATA_ACK  0x50
+#define TW_MR_DATA_NACK 0x58
 
 
 #endif // ATMEGA328P_H   // End of include guard

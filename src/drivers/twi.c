@@ -1,7 +1,6 @@
 
 #include "drivers/twi.h"
 
-
 void twi_init(TWI_handler_t *twiHandler) {
     // Set SCL frequency (default to 100kHz if not specified)
     uint32_t scl_freq = (twiHandler->TWIConfig.speed == 0) ? 100 : twiHandler->TWIConfig.speed;
@@ -15,8 +14,10 @@ void twi_init(TWI_handler_t *twiHandler) {
         twiHandler->pTWIx->twar = (twiHandler->TWIConfig.ownAddress << 1); // Set slave address
     }
 
+    GPIOC.port |= (1 << 4) | (1 << 5); // enable pull up resistors for twi communication on PC4 and PC5
+
     // Enable TWI peripheral
-    twiHandler->pTWIx->twcr = TWI_ENABLE;
+    twiHandler->pTWIx->twcr = TWI_ENABLE; //When TWI is enabled, the hardware automatically takes control of PC4/PC5 and makes them behave as open-drain
 }
 
 
