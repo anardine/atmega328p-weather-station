@@ -72,6 +72,9 @@ typedef struct {
 
 #define F_CPU           8000000UL
 
+#define EVEN            1
+#define ODD             2
+
 // Base addresses for peripherals (from ATmega328P datasheet)
 #define GPIOB_BASE   0x23   // Base address for GPIO Port B registers
 #define GPIOC_BASE   0x26   // Base address for GPIO Port C registers
@@ -175,6 +178,36 @@ typedef struct {
 #define TW_MR_SLA_ACK   0x40
 #define TW_MR_DATA_ACK  0x50
 #define TW_MR_DATA_NACK 0x58
+
+// USART Control and Status Register A (UCSRA) bit positions
+
+#define USART_U2X   (1 << 1)   // Double the USART Transmission Speed
+#define USART_RXC   (1 << 7)   // USART Receive Complete
+#define USART_TXC   (1 << 6)   // USART Transmit Complete
+#define USART_UDRE  (1 << 5)   // USART Data Register Empty
+#define USART_FE    (1 << 4)   // Frame Error
+#define USART_DOR   (1 << 3)   // Data OverRun
+#define USART_UPE   (1 << 2)   // USART Parity Error
+
+// USART Control and Status Register B (UCSRB) bit positions
+#define USART_RXCIE 7   // RX Complete Interrupt Enable
+#define USART_TXCIE 6   // TX Complete Interrupt Enable
+#define USART_UDRIE 5   // USART Data Register Empty Interrupt Enable
+#define USART_RXEN  4   // Receiver Enable
+#define USART_TXEN  3   // Transmitter Enable
+#define USART_UCSZ2 2   // Character Size bit 2
+#define USART_RXB8  1   // Receive Data Bit 8
+#define USART_TXB8  0   // Transmit Data Bit 8
+
+// USART Control and Status Register C (UCSRC) bit positions
+#define USART_UMSEL1 7  // USART Mode Select bit 1
+#define USART_UMSEL0 6  // USART Mode Select bit 0
+#define USART_UPM1   5  // Parity Mode bit 1
+#define USART_UPM0   4  // Parity Mode bit 0
+#define USART_USBS   3  // Stop Bit Select
+#define USART_UCSZ1  2  // Character Size bit 1
+#define USART_UCSZ0  1  // Character Size bit 0
+#define USART_UCPOL  0  // Clock Polarity
 
 
 #endif // ATMEGA328P_H   // End of include guard
