@@ -16,7 +16,7 @@ This is the architectural diagram of the design:
                                                                |              |
                                                         +----->+    Flash     |
  +5V Line                                               |      |              |
-    +                        STM32F411RET6              |      +--------------+
+    +                        ATMEGA328P-U              |      +--------------+
     |      +-----------+     +--------------------+     |
     |      |           |     |                    |     |      BME280
     +----->+ Power Reg +---->+ 3V3           SPI1 +<----+      +--------------+
