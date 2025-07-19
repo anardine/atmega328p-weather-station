@@ -7,7 +7,7 @@
 
 typedef struct {
     uint8_t speed;      // TWI clock speed (e.g., 100kHz, 400kHz)
-    uint8_t ownAddress;      // Device own address (if used in slave mode)
+    uint8_t ownAddress; // Device own address (if used in slave mode)
 } TWI_config_t;
 
 typedef struct {
