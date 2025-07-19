@@ -24,8 +24,8 @@ typedef struct
 
 void usart_init(USART_Handler_t *USARTHandler);
 
-void usart_transmit(USART_Handler_t *USARTHandler);
+void usart_transmit(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t lengh);
 
-void usart_receive(USART_Handler_t *USARTHandler);
+void usart_receive(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t length);
 
 #endif
