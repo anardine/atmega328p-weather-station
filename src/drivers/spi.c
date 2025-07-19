@@ -11,13 +11,13 @@ void spi_init(SPI_Handler_t *spiHandler)
     // Configure SPI pins as outputs/inputs based on master/slave mode
     if (spiHandler->SPIConfig.mode == SPI_MODE_MASTER) {
         // Master mode: Set MOSI, SCK, and SS as outputs, MISO as input
-        GPIOB.ddr |= (1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN);
-        GPIOB.ddr &= ~(1 << SPI_MISO_PIN);
+        GPIOB->ddr |= (1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN);
+        GPIOB->ddr &= ~(1 << SPI_MISO_PIN);
         
     } else {
         // Slave mode: Set MISO as output, MOSI, SCK, and SS as inputs
-        GPIOB.ddr |= (1 << SPI_MISO_PIN);
-        GPIOB.ddr &= ~((1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN));
+        GPIOB->ddr |= (1 << SPI_MISO_PIN);
+        GPIOB->ddr &= ~((1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN));
     }
     
     // Configure SPCR (SPI Control Register)

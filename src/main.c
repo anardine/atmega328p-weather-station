@@ -26,20 +26,6 @@ int main() {
 
 /* ----------------------- BEGINING OF PERIPHERALS CONFIGURATION ----------------------- */
 
-/* ----------- GPIO TWI CONFIGURATION ----------- */
-GPIO_handler_t *pToGPIOC;
-pToGPIOC->pToGPIOx = GPIOC;
-pToGPIOC->gpioConfig.pinNumber = 4;
-pToGPIOC->gpioConfig.inputOrOutput = GPIO_OUTPUT;
-pToGPIOC->gpioConfig.pullUpOrPullDown = GPIO_PULL_UP;
-
-gpio_init(pToGPIOC);
-
-pToGPIOC->gpioConfig.pinNumber = 5;
-
-gpio_init(pToGPIOC);
-/* ----------- END OF GPIO TWI CONFIGURATION ----------- */
-
 /* ----------- TWI CONFIGURATION ----------- */
 TWI_handler_t *pToTWI1;
 
