@@ -7,7 +7,7 @@
 // Timer configuration structure
 typedef struct {
     uint32_t interval_ms;   // Interval in milliseconds
-    uint8_t prescaler;      // Prescaler value (1, 8, 64, 256, 1024)
+    uint32_t prescaler;      // Prescaler value (1, 8, 64, 256, 1024)
     uint8_t mode;           // 0: Normal, 1: CTC
 } TIMER_config_t;
 
