@@ -11,8 +11,23 @@
  * @version 1.0
  */
 
+// Includes all atmega328p drivers
+#include "drivers/gpio.h"
+#include "drivers/spi.h"
+#include "drivers/timer.h"
+#include "drivers/twi.h"
+#include "drivers/usart.h"
+
+// Include driver for BME280
+#include <bme280.h>
 
 int main() {
+
+
+
+// Pointer to TWI handler (should be set in main)
+static TWI_handler_t *bme280_twi_handler;
+
 
     
     return 0;
