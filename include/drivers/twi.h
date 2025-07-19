@@ -8,7 +8,6 @@
 typedef struct {
     uint8_t speed;      // TWI clock speed (e.g., 100kHz, 400kHz)
     uint8_t ownAddress;      // Device own address (if used in slave mode)
-    uint8_t enablePullups;   // Enable/disable internal pull-ups
 } TWI_config_t;
 
 typedef struct {

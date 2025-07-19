@@ -93,9 +93,9 @@ typedef struct {
 #define TWI_BASE     0xB8   // Base address for TWI (I2C) registers
 
 // GPIO pointers (cast base addresses to GPIO_TypeDef pointers)
-#define GPIOB   (*(volatile GPIO_TypeDef*)(GPIOB_BASE))   // Pointer to GPIO Port B registers
-#define GPIOC   (*(volatile GPIO_TypeDef*)(GPIOC_BASE))   // Pointer to GPIO Port C registers
-#define GPIOD   (*(volatile GPIO_TypeDef*)(GPIOD_BASE))   // Pointer to GPIO Port D registers
+#define GPIOB   ((volatile GPIO_TypeDef*)(GPIOB_BASE))   // Pointer to GPIO Port B registers
+#define GPIOC   ((volatile GPIO_TypeDef*)(GPIOC_BASE))   // Pointer to GPIO Port C registers
+#define GPIOD   ((volatile GPIO_TypeDef*)(GPIOD_BASE))   // Pointer to GPIO Port D registers
 
 #define GPIO_INPUT          0
 #define GPIO_OUTPUT         1
@@ -104,18 +104,18 @@ typedef struct {
 #define GPIO_PULL_DOWN      0
 
 // Timer pointers (cast base addresses to timer struct pointers)
-#define TIMER0  (*(volatile TIMER8_TypeDef*)(TIMER0_BASE))    // Pointer to Timer/Counter0 registers (8-bit)
-#define TIMER1  (*(volatile TIMER16_TypeDef*)(TIMER1_BASE))   // Pointer to Timer/Counter1 registers (16-bit)
-#define TIMER2  (*(volatile TIMER8_TypeDef*)(TIMER2_BASE))    // Pointer to Timer/Counter2 registers (8-bit)
+#define TIMER0  ((volatile TIMER8_TypeDef*)(TIMER0_BASE))    // Pointer to Timer/Counter0 registers (8-bit)
+#define TIMER1  ((volatile TIMER16_TypeDef*)(TIMER1_BASE))   // Pointer to Timer/Counter1 registers (16-bit)
+#define TIMER2  ((volatile TIMER8_TypeDef*)(TIMER2_BASE))    // Pointer to Timer/Counter2 registers (8-bit)
 
 // ADC pointer (cast base address to ADC_TypeDef pointer)
-#define ADC1    (*(volatile ADC_TypeDef*)(ADC_BASE))          // Pointer to ADC registers
+#define ADC1    ((volatile ADC_TypeDef*)(ADC_BASE))          // Pointer to ADC registers
 
 // USART pointer (cast base address to USART_TypeDef pointer)
-#define USART0  (*(volatile USART_TypeDef*)(USART0_BASE))     // Pointer to USART0 registers
+#define USART0  ((volatile USART_TypeDef*)(USART0_BASE))     // Pointer to USART0 registers
 
 // SPI pointer (cast base address to SPI_TypeDef pointer)
-#define SPI1    (*(volatile SPI_TypeDef*)(SPI_BASE))          // Pointer to SPI registers
+#define SPI1    ((volatile SPI_TypeDef*)(SPI_BASE))          // Pointer to SPI registers
 
 
 // SPI configuration macros for ATmega328P
@@ -162,7 +162,7 @@ typedef struct {
 #define SPI_SPI2X 0  // Double SPI Speed Bit
 
 // TWI pointer (cast base address to TWI_TypeDef pointer)
-#define TWI1    (*(volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
+#define TWI1    ((volatile TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
 
 // Bit positions for TWI registers (ATmega328P)
 #define TWI_ENABLE_ACK  (1 << 6)   // TWEA
