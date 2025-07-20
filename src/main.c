@@ -22,25 +22,45 @@
 // Include driver for BME280
 #include <bme280.h>
 
-extern volatile uint8_t global_timer_counter = 0;
+static volatile uint8_t global_timer_fetch = 0;
+struct bme280_dev bme280;
+struct bme280_data sensor_data;
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
+
+// Timer interrupt routine
 ISR (TIMER1_OVF_vect) {
 
-    if(global_timer_counter == 8) {
+    if(global_timer_fetch >= 8) { // around 60 seconds per action on this interrupt routine
+        
+        // Fetch the data from the BME280 sensor and save to variables
+        bme280_get_sensor_data(BME280_ALL, &sensor_data, &bme280);
 
-        // fetch the data from the bme280 sensor and save
+        static volatile double temperature = 0;
+        static volatile double pressure = 0;
+        static volatile double humidity = 0;
+
+        temperature = sensor_data.temperature;
+        pressure = sensor_data.pressure;
+        humidity = sensor_data.humidity;
 
         // resets the counter
-        global_timer_counter = 0;
-
+        global_timer_fetch = 0;
     }
 
     // adds to the global timer counter
-    global_timer_counter++;
+    global_timer_fetch++;
 
     // resets the timer 
-    TCNT1 = 0x00;
+    TIMER1->tcnt = 0x00;
+}
+
+// Memory interrupt routine
+ISR (SPI_STC_vect) {
+    // impelement the routine to send the data to the ESP01-S module for broadcasting to the external API
+
+
+
 }
 
 /* ----------------------- END OF INTERRUPT ROUTINES ----------------------- */
@@ -60,7 +80,6 @@ pToTWI1->TWIConfig.speed = 100;
 /* ----------- BME280 INITIALIZATION ----------- */
 bme280_set_twi_handler(pToTWI1);
 
-struct bme280_dev bme280;
 bme280.chip_id = BME280_I2C_ADDR_PRIM;
 bme280.intf = BME280_I2C_INTF;
 bme280.read = bme280_i2c_read;
