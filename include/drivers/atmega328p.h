@@ -209,5 +209,9 @@ typedef struct {
 #define USART_UCSZ0  1  // Character Size bit 0
 #define USART_UCPOL  0  // Clock Polarity
 
+#define TIMER_MODE_NORMAL   0
+#define TIMER_MODE_CTC      1
+
+
 
 #endif // ATMEGA328P_H   // End of include guard

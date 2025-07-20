@@ -1,23 +1,14 @@
 #include "drivers/timer.h"
 
-static void (*timer1_callback)(void) = 0;
-
-// Timer1 initialization for CTC mode
+// Timer1 initialization. Initializing this function enables the timer and global interrupts.
 void timer1_init(TIMER_Handler_t *timerHandler) {
-    // Set CTC mode (Clear Timer on Compare Match)
-    timerHandler->pTIMERx->tccrb |= (1 << 3); // WGM12
-    timerHandler->pTIMERx->tccra &= ~((1 << 0) | (1 << 1)); // WGM10, WGM11
 
-    // Calculate OCR1A for desired interval
-    uint32_t ticks = (F_CPU / timerHandler->config.prescaler) * timerHandler->config.interval_ms / 1000;
-    timerHandler->pTIMERx->ocra = (uint16_t)(ticks - 1);
+    // reset the timer to zero
+    timerHandler->pTIMERx->tcnt = 0;
 
-    // Enable Output Compare A Match Interrupt
-    timerHandler->pTIMERx->timsk |= (1 << 1); // OCIE1A
-}
+    timerHandler->pTIMERx->tccra = 0x00;
 
-void timer1_start(TIMER_Handler_t *timerHandler) {
-    // Set prescaler (CS12:CS10)
+        // Set prescaler (CS12:CS10)
     switch (timerHandler->config.prescaler) {
         case 1:
             timerHandler->pTIMERx->tccrb |= (1 << 0); // CS10
@@ -38,6 +29,11 @@ void timer1_start(TIMER_Handler_t *timerHandler) {
             timerHandler->pTIMERx->tccrb |= (1 << 0); // Default to CS10
             break;
     }
+
+    // Enable • Bit 0 – TOIE1: Timer/Counter1, Overflow Interrupt Enable
+    timerHandler->pTIMERx->timsk |= (1 << 0); // TOIE1
+
+    sei(); //enable global interrupts
 }
 
 void timer1_stop(TIMER_Handler_t *timerHandler) {
@@ -45,13 +41,9 @@ void timer1_stop(TIMER_Handler_t *timerHandler) {
     timerHandler->pTIMERx->tccrb &= ~((1 << 0) | (1 << 1) | (1 << 2));
 }
 
-void timer1_set_callback(void (*callback)(void)) {
-    timer1_callback = callback;
-}
+void timer1_reset(TIMER_Handler_t *timerHandler) {
 
-// This function should be called from the Timer1 Compare Match ISR
-void timer1_isr_handler(void) {
-    if (timer1_callback) {
-        timer1_callback();
-    }
+    // reset the timer to zero
+    timerHandler->pTIMERx->tcnt = 0;
+
 }

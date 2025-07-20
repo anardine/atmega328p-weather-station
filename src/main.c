@@ -22,18 +22,42 @@
 // Include driver for BME280
 #include <bme280.h>
 
-int main() {
+extern volatile uint8_t global_timer_counter = 0;
 
-/* ----------------------- BEGINING OF PERIPHERALS CONFIGURATION ----------------------- */
+/* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
+ISR (TIMER1_OVF_vect) {
 
-/* ----------- TWI CONFIGURATION ----------- */
+    if(global_timer_counter == 8) {
+
+        // fetch the data from the bme280 sensor and save
+
+        // resets the counter
+        global_timer_counter = 0;
+
+    }
+
+    // adds to the global timer counter
+    global_timer_counter++;
+
+    // resets the timer 
+    TCNT1 = 0x00;
+}
+
+/* ----------------------- END OF INTERRUPT ROUTINES ----------------------- */
+
+
+int main(void) {
+
+/* ----------------------- BEGINING OF PERIPHERALS INITIALIZATION ----------------------- */
+
+/* ----------- TWI INITIALIZATION ----------- */
 TWI_handler_t *pToTWI1;
 
 pToTWI1->pTWIx = TWI1;
 pToTWI1->TWIConfig.speed = 100;
-/* ----------- END OF TWI CONFIGURATION ----------- */
+/* ----------- END OF TWI INITIALIZATION ----------- */
 
-/* ----------- BME280 CONFIGURATION ----------- */
+/* ----------- BME280 INITIALIZATION ----------- */
 bme280_set_twi_handler(pToTWI1);
 
 struct bme280_dev bme280;
@@ -45,10 +69,28 @@ bme280.delay_us = bme280_delay_ms;
 
 bme280_init(&bme280);
 
-/* ----------- END OF BME280 CONFIGURATION ----------- */
+/* ----------- END OF BME280 INITIALIZATION ----------- */
+
+
+/* ----------- TIMER INITIALIZATION ----------- */
+
+TIMER_Handler_t *pToTimer;
+
+pToTimer->config.prescaler = 1024;
+pToTimer->pTIMERx = TIMER1;
+
+timer1_init(pToTimer);
+
+/* ----------- END OF TIMER INITIALIZATION ----------- */
 
 
 
+/* ----------------------- MAIN LOOP ----------------------- */
+
+while (1)
+{
+    
+}
     
     return 0;
 }
