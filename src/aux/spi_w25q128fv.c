@@ -1,13 +1,36 @@
 
 #include "aux/spi_w25q128fv.h"
 
+void wait_for_clearance(SPI_Handler_t *pToSPIx) {
+        uint8_t status;
+    do {
+        spi_write(pToSPIx, 0x05, 1); // Read Status Register-1 command
+        status = spi_read(pToSPIx);
+    } while (status & 0x01); // WIP bit is set if busy
+}
+
+uint8_t check_write_clearance(SPI_Handler_t *pToSPIx) {
+    uint8_t status;
+
+        spi_write(pToSPIx, 0x05, 1); // Read Status Register-1 command
+        status = spi_read(pToSPIx);
+    
+        if(status & 2) {
+            return 0;
+        } else {
+            return -1;
+        }
+}
+
 
 uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataRetreived) {
-
-    // set CC to low on pin PB2 by setting the pin as an output pin
+    
+    // Set CS low to start communication
     GPIOB->ddr |= (1 << 2);
     GPIOB->port &= ~(1 << 2);
-    
+
+    wait_for_clearance(pToSPIx);
+
     spi_write(pToSPIx, 0x03, 1); // sends the read command
     spi_write(pToSPIx, blockAddress, 3); // send the block address where the data is stored
 
@@ -17,6 +40,9 @@ uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t 
 
     }
 
+    // Wait for read to finish
+    wait_for_clearance(pToSPIx);
+
     GPIOB->port |= (1 << 2); // set CS to high to stop communication
 
     return 0; 
@@ -24,9 +50,50 @@ uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t 
 }
 
 
-void flash_write_data(void) {
+void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataToWrite) {
 
+    // set CC to low on pin PB2 by setting the pin as an output pin
+    GPIOB->ddr |= (1 << 2);
+    GPIOB->port &= ~(1 << 2);
 
+    wait_for_clearance(pToSPIx); // device ready
 
+    if(check_write_clearance(pToSPIx)) { // device write enabled if 0
+
+        spi_write(pToSPIx, 0x06, 1); // Write Enable instruction
+
+    } 
+        
+        // Page Program command (0x02)
+        spi_write(pToSPIx, 0x02, 1);
+        // Send 3-byte address
+        spi_write(pToSPIx, blockAddress, 3);
+        // Write data bytes
+        for(uint32_t i = 0; i < length; i++) {
+            spi_write(pToSPIx, &pToDataToWrite[i], 1);
+        }
+        // Wait for write to finish
+        wait_for_clearance(pToSPIx);
+
+    GPIOB->port |= (1 << 2); // set CS to high to stop communication
+}
+
+void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length) {
+
+    // set CC to low on pin PB2 by setting the pin as an output pin
+    GPIOB->ddr |= (1 << 2);
+    GPIOB->port &= ~(1 << 2);
+
+    wait_for_clearance(pToSPIx); // device ready
+
+    if(check_write_clearance(pToSPIx)) { // device write enabled
+
+        spi_write(pToSPIx, 0x06, 1); // Write Enable instruction
+
+    }
+
+    // erase logic
+
+    GPIOB->port |= (1 << 2); // set CS to high to stop communication
 
 }
