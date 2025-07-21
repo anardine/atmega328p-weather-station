@@ -70,24 +70,25 @@ void spi_init(SPI_Handler_t *spiHandler)
  *
  * @param spiHandler Pointer to SPI handler.
  * @param data Byte to send.
- * @return uint8_t The byte received during transmission.
+ * @return The byte received during transmission.
  */
-uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t data)
+uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t *data, uint32_t length)
 {
     if (spiHandler == NULL || spiHandler->pToSPIx == NULL) {
-        return 0; // Invalid handler
+        return -1; // Invalid handler
     }
-    
+
+    for(uint32_t i=0; i<length; i++) {
     // Start transmission by writing data to SPDR
-    spiHandler->pToSPIx->spdr = data;
+    spiHandler->pToSPIx->spdr = data[i];
     
     // Wait for transmission complete (SPIF flag in SPSR)
-    while (!(spiHandler->pToSPIx->spsr & (1 << SPI_SPIF))) {
-        // Wait for transmission to complete
+    while (!(spiHandler->pToSPIx->spsr & (1 << SPI_SPIF)));
+
     }
-    
-    // Return received data from SPDR
+
     return spiHandler->pToSPIx->spdr;
+
 }
 
 /**
@@ -103,5 +104,5 @@ uint8_t spi_read(SPI_Handler_t *spiHandler)
     }
     
     // Send dummy byte (0xFF is commonly used) to generate clock and receive data
-    return spi_write(spiHandler, 0xFF);
+    return spi_write(spiHandler, 0xFF, 1);
 }

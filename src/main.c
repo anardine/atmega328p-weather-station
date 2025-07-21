@@ -44,6 +44,8 @@ ISR (TIMER1_OVF_vect) {
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
 
+        // sends this data to the flash memory for further use.
+
         // resets the counter
         global_timer_fetch = 0;
     }

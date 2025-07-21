@@ -36,9 +36,10 @@ void spi_init(SPI_Handler_t *spiHandler);
  *
  * @param spiHandler Pointer to SPI handler.
  * @param data Byte to send.
+ * @param length Size in bytes of the data to be sent
  * @return uint8_t The byte received during transmission.
  */
-uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t data);
+uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t *data, uint32_t length);
 
 /**
  * @brief Reads a byte of data from SPI (by sending dummy data).
