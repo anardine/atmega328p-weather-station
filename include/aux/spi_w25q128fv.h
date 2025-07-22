@@ -18,8 +18,7 @@ uint8_t check_write_clearance(SPI_Handler_t *pToSPIx);
  */
 uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataRetreived);
 void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataToWrite);
-void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length);
-
+void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t eraseMode);
 
 
 #endif // SPI_W25Q128FV_H

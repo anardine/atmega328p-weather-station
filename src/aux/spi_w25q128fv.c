@@ -78,7 +78,7 @@ void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t le
     GPIOB->port |= (1 << 2); // set CS to high to stop communication
 }
 
-void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length) {
+void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t eraseMode) {
 
     // set CC to low on pin PB2 by setting the pin as an output pin
     GPIOB->ddr |= (1 << 2);
@@ -92,8 +92,13 @@ void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length)
 
     }
 
-    // erase logic
+    // Erase logic: Use Sector Erase (0x20) or Block Erase (0xD8) or Chip Erase (0xC7)
+    // Here, we'll use Sector Erase (0x20) for the address provided
+    // You can change to 0xD8 for 64KB block erase or 0xC7 for chip erase
 
-    GPIOB->port |= (1 << 2); // set CS to high to stop communication
+    // Sector Erase command (0x20)
+    spi_write(pToSPIx, eraseMode, 1); // Send erase command
+    spi_write(pToSPIx, blockAddress, 3); // Send 3-byte address
 
+    GPIOB->port |= (1 << 2); // set CS to high. Setting CS high is a must for completing the erasing cycle.
 }
