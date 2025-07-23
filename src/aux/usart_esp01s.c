@@ -1,6 +1,6 @@
 #include "aux/usart_esp01s.h"
 
-int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, uint32_t *timeCollected) {
+int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, uint64_t *timeCollected) {
 
     char transmitbuffer[50];
     char startConnAT[100] = "AT+CIPSTART=\"TCP\",\"server.com\",port\r\n"; // define properties
