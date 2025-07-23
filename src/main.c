@@ -52,10 +52,10 @@ ISR (TIMER1_OVF_vect) {
         uint8_t *pToPress = &pressure;
         uint8_t *pToHumid = &humidity;
 
-        //buffers to store data before saving to spi in uint8 format
-        uint8_t temperatureBuffer[sizeof(double)];
-        uint8_t pressureBuffer[sizeof(double)];
-        uint8_t humidityBuffer[sizeof(double)];
+        //buffers to store data before saving to flash in uint8 format
+        uint8_t temperatureBuffer[sizeof(double)] = pToTemp;
+        uint8_t pressureBuffer[sizeof(double)] = pToPress;
+        uint8_t humidityBuffer[sizeof(double)] = pToHumid;
 
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
@@ -108,7 +108,7 @@ bme280_init(&bme280);
 pToTimer1->config.prescaler = 1024;
 pToTimer1->pTIMERx = TIMER1;
 
-timer1_init(pToTimer);
+timer1_init(pToTimer1);
 
 /* ----------- END OF TIMER INITIALIZATION ----------- */
 
