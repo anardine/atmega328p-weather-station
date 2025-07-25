@@ -7,8 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 
-int8_t esp01s_send_data(USART_Handler_t *pToUSARTx, uint8_t *temperatureBuffer, uint8_t *pressureBuffer, uint8_t *humidityBuffer);
-
+void delay(void);
+int8_t esp01s_setup(USART_Handler_t *pToUSARTx, char *ssid, char *pwd);
+int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature);
+int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure);
+int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity);
 
 
 #endif // USART_ESPO1S_H
