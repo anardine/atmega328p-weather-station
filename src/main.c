@@ -19,6 +19,7 @@
 #include "drivers/usart.h"
 #include "aux/twi_bme280.h"
 #include "aux/spi_w25q128fv.h"
+#include <time.h>
 
 // Include driver for BME280
 #include <bme280.h>
@@ -60,7 +61,7 @@ ISR (TIMER1_OVF_vect) {
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
-
+    
         // sends this data to the flash memory for storage and further use.
 
         //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
