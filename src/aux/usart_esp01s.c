@@ -72,7 +72,6 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature) {
     char dataToBeTransmitted[50];
     char sendDataAT[100];
     char receiveBuffer[50];
-    char response[50];
 
     // setup the buffers with the data to be sent
     snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "temperature,bme280,%.2f,celcius", temperature);
@@ -103,7 +102,6 @@ int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
     char dataToBeTransmitted[50];
     char sendDataAT[100];
     char receiveBuffer[50];
-    char response[50];
 
     // setup the buffers with the data to be sent
     snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "pressure,bme280,%.2f,hPa", pressure);
@@ -134,8 +132,7 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
     char dataToBeTransmitted[50];
     char sendDataAT[100];
     char receiveBuffer[50];
-    char response[50];
-
+    
     // setup the buffers with the data to be sent
     snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "pressure,bme280,%.2f,%c", humidity, 37);
     snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));

@@ -48,16 +48,6 @@ ISR (TIMER1_OVF_vect) {
         static volatile double pressure = 0;
         static volatile double humidity = 0;
 
-        //uint8 pointers to data
-        uint8_t *pToTemp = &temperature;
-        uint8_t *pToPress = &pressure;
-        uint8_t *pToHumid = &humidity;
-
-        //buffers to store data before saving to flash in uint8 format
-        uint8_t temperatureBuffer[sizeof(double)] = pToTemp;
-        uint8_t pressureBuffer[sizeof(double)] = pToPress;
-        uint8_t humidityBuffer[sizeof(double)] = pToHumid;
-
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
