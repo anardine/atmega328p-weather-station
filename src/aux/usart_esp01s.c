@@ -5,6 +5,32 @@ void delay(void) {
     for (uint32_t i = 0; i < 10000; i++);
 }
 
+int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
+    char receiveBuffer[100];
+    int retries;
+
+    // 1. Test communication
+    for (retries = 0; retries < 3; retries++) {
+        usart_transmit(pToUSARTx, (uint8_t*)"AT\r\n", 4);
+        delay();
+        usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
+    }
+    if (retries == 3) return -1;
+
+    // 2. Set USART configuration: 115200 baud, 8N1, no flow control
+    // AT+UART_DEF=115200,8,1,0,0
+    for (retries = 0; retries < 3; retries++) {
+        usart_transmit(pToUSARTx, (uint8_t*)"AT+UART_DEF=115200,8,1,0,0\r\n", 28);
+        delay();
+        usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
+    }
+    if (retries == 3) return -2;
+
+    return 0; // Success
+}
+
 int8_t esp01s_setup(USART_Handler_t *pToUSARTx, char *ssid, char *pwd){
     
     char receiveBuffer[100];
@@ -132,7 +158,7 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
     char dataToBeTransmitted[50];
     char sendDataAT[100];
     char receiveBuffer[50];
-    
+
     // setup the buffers with the data to be sent
     snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "pressure,bme280,%.2f,%c", humidity, 37);
     snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));

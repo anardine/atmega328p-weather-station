@@ -19,6 +19,7 @@
 #include "drivers/usart.h"
 #include "aux/twi_bme280.h"
 #include "aux/spi_w25q128fv.h"
+#include "aux/usart_esp01s.h"
 #include <time.h>
 
 // Include driver for BME280
@@ -109,6 +110,25 @@ pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
 pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
 // check if more spi configs need to be set to commuicate well with the winbond flash
 
+/* ----------- END OF FLASH INITIALIZATION ----------- */
+
+/* ----------- USART INITIALIZATION ----------- */
+
+USART_Handler_t *pToUSART0;
+pToUSART0->USARTConfig.baudRate = 115200;
+pToUSART0->USARTConfig.uartByteSize = 8;
+pToUSART0->USARTConfig.stopBitQuantity = 1;
+pToUSART0->pUSARTx = USART0;
+
+usart_init(pToUSART0);
+
+/* ----------- END OF USART INITIALIZATION ----------- */
+
+/* ----------- ESP INITIALIZATION ----------- */
+
+esp01s_init(pToUSART0);
+
+/* ----------- END OF ESP INITIALIZATION ----------- */
 
 
 /* ----------------------- MAIN LOOP ----------------------- */
