@@ -20,6 +20,7 @@
 #include "aux/twi_bme280.h"
 #include "aux/spi_w25q128fv.h"
 #include "aux/usart_esp01s.h"
+#include "config.h"
 #include <time.h>
 
 // Include driver for BME280
@@ -32,7 +33,7 @@ struct bme280_data sensor_data;
 TIMER_Handler_t *pToTimer1;
 SPI_Handler_t *pToSPI1;
 TWI_handler_t *pToTWI1;
-
+USART_Handler_t *pToUSART0;
 
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
@@ -57,6 +58,9 @@ ISR (TIMER1_OVF_vect) {
 
         //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
 
+        //setup conn to send data
+        esp01s_setup(pToUSART0);
+
         // resets the counter
         global_timer_fetch = 0;
     }
@@ -67,7 +71,6 @@ ISR (TIMER1_OVF_vect) {
     // resets the timer 
     TIMER1->tcnt = 0x00;
 }
-
 
 /* ----------------------- END OF INTERRUPT ROUTINES ----------------------- */
 
@@ -114,7 +117,6 @@ pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
 
 /* ----------- USART INITIALIZATION ----------- */
 
-USART_Handler_t *pToUSART0;
 pToUSART0->USARTConfig.baudRate = 115200;
 pToUSART0->USARTConfig.uartByteSize = 8;
 pToUSART0->USARTConfig.stopBitQuantity = 1;

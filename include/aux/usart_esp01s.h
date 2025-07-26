@@ -9,7 +9,7 @@
 
 void delay(void);
 int8_t esp01s_init(USART_Handler_t *pToUSARTx);
-int8_t esp01s_setup(USART_Handler_t *pToUSARTx, char *ssid, char *pwd);
+int8_t esp01s_setup(USART_Handler_t *pToUSARTx);
 int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature);
 int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure);
 int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity);

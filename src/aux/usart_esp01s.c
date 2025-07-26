@@ -31,7 +31,7 @@ int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
     return 0; // Success
 }
 
-int8_t esp01s_setup(USART_Handler_t *pToUSARTx, char *ssid, char *pwd){
+int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     
     char receiveBuffer[100];
     char cmdBuffer[100];
