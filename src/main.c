@@ -21,7 +21,6 @@
 #include "aux/spi_w25q128fv.h"
 #include "aux/usart_esp01s.h"
 #include "config.h"
-#include <time.h>
 
 // Include driver for BME280
 #include <bme280.h>
@@ -49,17 +48,22 @@ ISR (TIMER1_OVF_vect) {
         static volatile double temperature = 0;
         static volatile double pressure = 0;
         static volatile double humidity = 0;
+        static volatile uint8_t isRaining = 0;
 
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
     
-        // sends this data to the flash memory for storage and further use.
-
+        // TODO: sends this data to the flash memory for storage and further use.
         //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
 
         //setup conn to send data
         esp01s_setup(pToUSART0);
+
+        // send the data to the server via ESP01-S
+        esp01s_send_temperature(pToUSART0, temperature);
+        esp01s_send_pressure(pToUSART0, pressure);
+        esp01s_send_humidity(pToUSART0, humidity);
 
         // resets the counter
         global_timer_fetch = 0;
