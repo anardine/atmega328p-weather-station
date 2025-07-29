@@ -26,19 +26,21 @@
 #include <bme280.h>
 
 static volatile uint8_t global_timer_fetch = 0;
-static volatile uint8_t global_memory_page_tracker = 0;
+//static volatile uint8_t global_memory_page_tracker = 0;
 struct bme280_dev bme280;
 struct bme280_data sensor_data;
 TIMER_Handler_t *pToTimer1;
 SPI_Handler_t *pToSPI1;
 TWI_handler_t *pToTWI1;
 USART_Handler_t *pToUSART0;
+GPIO_handler_t *pToGPIOC;
+
 
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
 
 // Timer interrupt routine
-ISR (TIMER1_OVF_vect) {
+ISR (TIMER1_OVF_vect) { 
 
     if(global_timer_fetch >= 8) { // around 60 seconds per action on this interrupt routine
         
@@ -112,9 +114,9 @@ timer1_init(pToTimer1);
 /* ----------- END OF TIMER INITIALIZATION ----------- */
 
 /* ----------- FLASH INITIALIZATION ----------- */
-pToSPI1->pToSPIx = SPI1;
-pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
-pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
+// pToSPI1->pToSPIx = SPI1;
+// pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
+// pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
 // check if more spi configs need to be set to commuicate well with the winbond flash
 
 /* ----------- END OF FLASH INITIALIZATION ----------- */
@@ -136,6 +138,14 @@ esp01s_init(pToUSART0);
 
 /* ----------- END OF ESP INITIALIZATION ----------- */
 
+/* ----------- GPIO RAIN INITIALIZATION ----------- */
+pToGPIOC->pToGPIOx = GPIOC;
+pToGPIOC->gpioConfig.inputOrOutput = GPIO_INPUT;
+pToGPIOC->gpioConfig.pinNumber = 2;
+
+gpio_init(pToGPIOC);
+
+/* ----------- END OF GPIO RAIN INITIALIZATION ----------- */
 
 /* ----------------------- MAIN LOOP ----------------------- */
 
