@@ -20,6 +20,7 @@
 #include "aux/twi_bme280.h"
 #include "aux/spi_w25q128fv.h"
 #include "aux/usart_esp01s.h"
+#include "aux/gpio_mhrain.h"
 #include "config.h"
 
 // Include driver for BME280
@@ -55,6 +56,7 @@ ISR (TIMER1_OVF_vect) {
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
+        isRaining = read_rain(pToGPIOC);
     
         // TODO: sends this data to the flash memory for storage and further use.
         //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
@@ -66,6 +68,7 @@ ISR (TIMER1_OVF_vect) {
         esp01s_send_temperature(pToUSART0, temperature);
         esp01s_send_pressure(pToUSART0, pressure);
         esp01s_send_humidity(pToUSART0, humidity);
+        esp01s_send_rain(pToUSART0, isRaining);
 
         // resets the counter
         global_timer_fetch = 0;

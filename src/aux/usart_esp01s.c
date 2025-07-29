@@ -182,3 +182,37 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
     return -2;
 
 }
+
+int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining){
+
+
+    char dataToBeTransmitted[50];
+    char sendDataAT[100];
+    char receiveBuffer[50];
+
+    // setup the buffers with the data to be sent
+    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "rain,mh_rain,%u,-", isRaining);
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));
+
+    int retries;
+    //Inform the device the size of data being transmitted
+    for (retries = 0; retries < 3; retries++) {
+        usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
+        delay();
+        usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if(strstr(receiveBuffer, ">") != NULL) break;
+    }
+    if (retries == 3) return -1;
+
+    for (retries = 0; retries < 3; retries++) {
+        usart_transmit(pToUSARTx, (uint8_t*)dataToBeTransmitted, strlen(dataToBeTransmitted));
+        delay();
+        usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
+    }
+    return -2;
+
+
+
+
+}
