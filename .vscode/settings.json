@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "atmega328p.h": "c",
-        "bme280.h": "c"
+        "bme280.h": "c",
+        "spi_w25q128fv.h": "c"
     }
 }

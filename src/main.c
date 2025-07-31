@@ -34,8 +34,8 @@ TIMER_Handler_t *pToTimer1;
 SPI_Handler_t *pToSPI1;
 TWI_handler_t *pToTWI1;
 USART_Handler_t *pToUSART0;
-GPIO_handler_t *pToGPIOC;
-
+GPIO_handler_t *pToGPIOC2;
+GPIO_handler_t *pToGPIOC1;
 
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
@@ -56,7 +56,7 @@ ISR (TIMER1_OVF_vect) {
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
-        isRaining = read_rain(pToGPIOC);
+        isRaining = read_rain(pToGPIOC2);
     
         // TODO: sends this data to the flash memory for storage and further use.
         //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
@@ -142,13 +142,22 @@ esp01s_init(pToUSART0);
 /* ----------- END OF ESP INITIALIZATION ----------- */
 
 /* ----------- GPIO RAIN INITIALIZATION ----------- */
-pToGPIOC->pToGPIOx = GPIOC;
-pToGPIOC->gpioConfig.inputOrOutput = GPIO_INPUT;
-pToGPIOC->gpioConfig.pinNumber = 2;
+pToGPIOC2->pToGPIOx = GPIOC;
+pToGPIOC2->gpioConfig.inputOrOutput = GPIO_INPUT;
+pToGPIOC2->gpioConfig.pinNumber = 2;
 
-gpio_init(pToGPIOC);
+gpio_init(pToGPIOC2);
 
 /* ----------- END OF GPIO RAIN INITIALIZATION ----------- */
+
+/* ----------- GPIO WARNING INITIALIZATION ----------- */
+pToGPIOC1->pToGPIOx = GPIOC;
+pToGPIOC1->gpioConfig.inputOrOutput = GPIO_OUTPUT;
+pToGPIOC1->gpioConfig.pinNumber = 1;
+
+gpio_init(pToGPIOC1);
+
+/* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 
 /* ----------------------- MAIN LOOP ----------------------- */
 
