@@ -94,17 +94,29 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
 }
 
 int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature) {
-
-    char dataToBeTransmitted[50];
+    char dataToBeTransmitted[150];
+    char httpRequest[300];
     char sendDataAT[100];
-    char receiveBuffer[50];
+    char receiveBuffer[100];
 
-    // setup the buffers with the data to be sent
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "temperature,bme280,%.2f,celcius", temperature);
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));
+    // Format data as HTTP POST form data
+    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+        "type=temperature&sensor=bme280&value=%.2f&unit=celsius", temperature);
+    
+    // Create HTTP POST request
+    snprintf(httpRequest, sizeof(httpRequest), 
+        "POST /api.php HTTP/1.1\r\n"
+        "Host: %s\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Content-Length: %d\r\n"
+        "\r\n"
+        "%s", 
+        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
-    //Inform the device the size of data being transmitted
+    // Inform the device the size of data being transmitted
     for (retries = 0; retries < 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
@@ -114,27 +126,37 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature) {
     if (retries == 3) return -1;
 
     for (retries = 0; retries < 3; retries++) {
-        usart_transmit(pToUSARTx, (uint8_t*)dataToBeTransmitted, strlen(dataToBeTransmitted));
+        usart_transmit(pToUSARTx, (uint8_t*)httpRequest, strlen(httpRequest));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
-
 }
 
 int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
-
-    char dataToBeTransmitted[50];
+    char dataToBeTransmitted[150];
+    char httpRequest[300];
     char sendDataAT[100];
-    char receiveBuffer[50];
+    char receiveBuffer[100];
 
-    // setup the buffers with the data to be sent
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "pressure,bme280,%.2f,hPa", pressure);
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));
+    // Format data as HTTP POST form data
+    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+        "type=pressure&sensor=bme280&value=%.2f&unit=hpa", pressure);
+    
+    // Create HTTP POST request
+    snprintf(httpRequest, sizeof(httpRequest), 
+        "POST /api.php HTTP/1.1\r\n"
+        "Host: %s\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Content-Length: %d\r\n"
+        "\r\n"
+        "%s", 
+        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
-    //Inform the device the size of data being transmitted
     for (retries = 0; retries < 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
@@ -144,27 +166,37 @@ int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
     if (retries == 3) return -1;
 
     for (retries = 0; retries < 3; retries++) {
-        usart_transmit(pToUSARTx, (uint8_t*)dataToBeTransmitted, strlen(dataToBeTransmitted));
+        usart_transmit(pToUSARTx, (uint8_t*)httpRequest, strlen(httpRequest));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
-
 }
 
 int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
-
-    char dataToBeTransmitted[50];
+    char dataToBeTransmitted[150];
+    char httpRequest[300];
     char sendDataAT[100];
-    char receiveBuffer[50];
+    char receiveBuffer[100];
 
-    // setup the buffers with the data to be sent
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "pressure,bme280,%.2f,%c", humidity, 37);
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));
+    // Format data as HTTP POST form data (fix: was "pressure" should be "humidity")
+    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+        "type=humidity&sensor=bme280&value=%.2f&unit=percent", humidity);
+    
+    // Create HTTP POST request
+    snprintf(httpRequest, sizeof(httpRequest), 
+        "POST /api.php HTTP/1.1\r\n"
+        "Host: %s\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Content-Length: %d\r\n"
+        "\r\n"
+        "%s", 
+        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
-    //Inform the device the size of data being transmitted
     for (retries = 0; retries < 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
@@ -174,28 +206,37 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
     if (retries == 3) return -1;
 
     for (retries = 0; retries < 3; retries++) {
-        usart_transmit(pToUSARTx, (uint8_t*)dataToBeTransmitted, strlen(dataToBeTransmitted));
+        usart_transmit(pToUSARTx, (uint8_t*)httpRequest, strlen(httpRequest));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
-
 }
 
-int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining){
-
-
-    char dataToBeTransmitted[50];
+int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
+    char dataToBeTransmitted[150];
+    char httpRequest[300];
     char sendDataAT[100];
-    char receiveBuffer[50];
+    char receiveBuffer[100];
 
-    // setup the buffers with the data to be sent
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), "rain,mh_rain,%u,-", isRaining);
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(dataToBeTransmitted));
+    // Format data as HTTP POST form data
+    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+        "type=rain&sensor=mh_rain&value=%u&unit=boolean", isRaining);
+    
+    // Create HTTP POST request
+    snprintf(httpRequest, sizeof(httpRequest), 
+        "POST /api.php HTTP/1.1\r\n"
+        "Host: %s\r\n"
+        "Content-Type: application/x-www-form-urlencoded\r\n"
+        "Content-Length: %d\r\n"
+        "\r\n"
+        "%s", 
+        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
-    //Inform the device the size of data being transmitted
     for (retries = 0; retries < 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
@@ -205,14 +246,10 @@ int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining){
     if (retries == 3) return -1;
 
     for (retries = 0; retries < 3; retries++) {
-        usart_transmit(pToUSARTx, (uint8_t*)dataToBeTransmitted, strlen(dataToBeTransmitted));
+        usart_transmit(pToUSARTx, (uint8_t*)httpRequest, strlen(httpRequest));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
-
-
-
-
 }
