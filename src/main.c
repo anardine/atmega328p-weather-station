@@ -65,10 +65,10 @@ ISR (TIMER1_OVF_vect) {
         esp01s_setup(pToUSART0);
 
         // send the data to the server via ESP01-S
-        esp01s_send_temperature(pToUSART0, temperature);
-        esp01s_send_pressure(pToUSART0, pressure);
-        esp01s_send_humidity(pToUSART0, humidity);
-        esp01s_send_rain(pToUSART0, isRaining);
+        esp01s_send_temperature(pToUSART0, temperature) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_rain(pToUSART0, isRaining) ? toggle_warning(pToGPIOC1) : 0;
 
         // resets the counter
         global_timer_fetch = 0;
