@@ -93,9 +93,9 @@ typedef struct {
 #define TWI_BASE     0xB8   // Base address for TWI (I2C) registers
 
 // GPIO pointers (cast base addresses to GPIO_TypeDef pointers)
-#define GPIOB   ((volatile GPIO_TypeDef*)(GPIOB_BASE))   // Pointer to GPIO Port B registers
-#define GPIOC   ((volatile GPIO_TypeDef*)(GPIOC_BASE))   // Pointer to GPIO Port C registers
-#define GPIOD   ((volatile GPIO_TypeDef*)(GPIOD_BASE))   // Pointer to GPIO Port D registers
+#define GPIOB   ((GPIO_TypeDef*)(GPIOB_BASE))   // Pointer to GPIO Port B registers
+#define GPIOC   ((GPIO_TypeDef*)(GPIOC_BASE))   // Pointer to GPIO Port C registers
+#define GPIOD   ((GPIO_TypeDef*)(GPIOD_BASE))   // Pointer to GPIO Port D registers
 
 #define GPIO_INPUT          0
 #define GPIO_OUTPUT         1
