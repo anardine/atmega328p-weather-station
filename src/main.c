@@ -21,6 +21,7 @@
 #include "aux/spi_w25q128fv.h"
 #include "aux/usart_esp01s.h"
 #include "aux/gpio_mhrain.h"
+#include "aux/gpio_warning.h"
 #include "config.h"
 
 // Include driver for BME280

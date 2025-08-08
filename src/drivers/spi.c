@@ -104,5 +104,6 @@ uint8_t spi_read(SPI_Handler_t *spiHandler)
     }
     
     // Send dummy byte (0xFF is commonly used) to generate clock and receive data
-    return spi_write(spiHandler, 0xFF, 1);
+    uint8_t dummyData = 0xFF;
+    return spi_write(spiHandler, &dummyData, 1);
 }
