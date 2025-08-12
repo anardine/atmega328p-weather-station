@@ -212,10 +212,9 @@ typedef struct {
 #define TIMER_MODE_NORMAL   0
 #define TIMER_MODE_CTC      1
 //Sector Erase (0x20) or Block Erase (0xD8) or Chip Erase (0xC7)
-#define FLASH_SECTOR_ERASE      0X20   
+#define FLASH_SECTOR_ERASE      0X20
 #define FLASH_BLOCK_ERASE       0XD8   
 #define FLASH_FULL_CHIP_ERASE   0XC7
-
 
 
 #endif // ATMEGA328P_H   // End of include guard

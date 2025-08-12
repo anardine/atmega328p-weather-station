@@ -118,10 +118,10 @@ timer1_init(pToTimer1);
 /* ----------- END OF TIMER INITIALIZATION ----------- */
 
 /* ----------- FLASH INITIALIZATION ----------- */
-// pToSPI1->pToSPIx = SPI1;
-// pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
-// pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
-// check if more spi configs need to be set to commuicate well with the winbond flash
+pToSPI1->pToSPIx = SPI1;
+pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
+pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
+//check if more spi configs need to be set to commuicate well with the winbond flash
 
 /* ----------- END OF FLASH INITIALIZATION ----------- */
 
