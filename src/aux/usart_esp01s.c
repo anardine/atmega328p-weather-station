@@ -93,8 +93,8 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     return 0; // Success
 }
 
-int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature) {
-    char dataToBeTransmitted[150];
+int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, char *errorBuffer, uint16_t errorBufferSize) {
+    static char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
@@ -117,21 +117,27 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature) {
 
     int retries;
     // Inform the device the size of data being transmitted
-    for (retries = 0; retries < 3; retries++) {
+    for (retries = 0; retries <= 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if(strstr(receiveBuffer, ">") != NULL) break;
     }
-    if (retries == 3) return -1;
+    if (retries == 3) {
+        strncpy(errorBuffer,dataToBeTransmitted,errorBufferSize);
+        return 1;
+    }
 
-    for (retries = 0; retries < 3; retries++) {
+    for (retries = 0; retries <= 3; retries++) {
         usart_transmit(pToUSARTx, (uint8_t*)httpRequest, strlen(httpRequest));
         delay();
         usart_receive(pToUSARTx, (uint8_t*)receiveBuffer, sizeof(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
-    return -2;
+     if (retries == 3) {
+        strncpy(errorBuffer,dataToBeTransmitted,errorBufferSize);
+        return 2;
+    }
 }
 
 int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {

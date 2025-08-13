@@ -2,6 +2,8 @@
     "files.associations": {
         "atmega328p.h": "c",
         "bme280.h": "c",
-        "spi_w25q128fv.h": "c"
+        "spi_w25q128fv.h": "c",
+        "usart_esp01s.h": "c",
+        "config.h": "c"
     }
 }

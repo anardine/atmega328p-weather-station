@@ -28,7 +28,7 @@
 #include <bme280.h>
 
 static volatile uint8_t global_timer_fetch = 0;
-//static volatile uint8_t global_memory_page_tracker = 0;
+static volatile uint8_t global_memory_page_tracker[3] = {0x00, 0x00, 0x00};
 struct bme280_dev bme280;
 struct bme280_data sensor_data;
 TIMER_Handler_t *pToTimer1;
@@ -54,6 +54,10 @@ ISR (TIMER1_OVF_vect) {
         static volatile double humidity = 0;
         static volatile uint8_t isRaining = 0;
 
+        //buffer to get the data that was going to be sent to the ESP modeule
+        char *errorBuffer;
+        uint8_t errorBufferLength = 150;
+
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
@@ -66,7 +70,15 @@ ISR (TIMER1_OVF_vect) {
         esp01s_setup(pToUSART0);
 
         // send the data to the server via ESP01-S
-        esp01s_send_temperature(pToUSART0, temperature) ? toggle_warning(pToGPIOC1) : 0;
+        if(esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength)) {
+            // toggle warning to advise that posting was not complete
+            toggle_warning(pToGPIOC1);
+            //save errorBuffer to the flash memory
+            flash_write_data(pToSPI1, global_memory_page_tracker, errorBufferLength, errorBuffer);
+            global_memory_page_tracker
+
+
+        }
         esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
         esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;
         esp01s_send_rain(pToUSART0, isRaining) ? toggle_warning(pToGPIOC1) : 0;
@@ -118,9 +130,9 @@ timer1_init(pToTimer1);
 /* ----------- END OF TIMER INITIALIZATION ----------- */
 
 /* ----------- FLASH INITIALIZATION ----------- */
-pToSPI1->pToSPIx = SPI1;
-pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
-pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
+// pToSPI1->pToSPIx = SPI1;
+// pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
+// pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
 //check if more spi configs need to be set to commuicate well with the winbond flash
 
 /* ----------- END OF FLASH INITIALIZATION ----------- */
