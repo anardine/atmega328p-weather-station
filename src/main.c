@@ -56,7 +56,7 @@ ISR (TIMER1_OVF_vect) {
 
         //buffer to get the data that was going to be sent to the ESP modeule
         char *errorBuffer;
-        uint8_t errorBufferLength = 150;
+        uint8_t errorBufferLength = 100;
 
         temperature = sensor_data.temperature;
         pressure = sensor_data.pressure;
@@ -75,9 +75,7 @@ ISR (TIMER1_OVF_vect) {
             toggle_warning(pToGPIOC1);
             //save errorBuffer to the flash memory
             flash_write_data(pToSPI1, global_memory_page_tracker, errorBufferLength, errorBuffer);
-            global_memory_page_tracker
-
-
+            //TODO:increment the global tracket to keep rack to where to save on the memory
         }
         esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
         esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;

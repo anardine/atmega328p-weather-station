@@ -94,7 +94,7 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
 }
 
 int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, char *errorBuffer, uint16_t errorBufferSize) {
-    static char dataToBeTransmitted[150];
+    static char dataToBeTransmitted[100];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
