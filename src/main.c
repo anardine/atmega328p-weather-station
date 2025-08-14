@@ -74,7 +74,7 @@ ISR (TIMER1_OVF_vect) {
             // toggle warning to advise that posting was not complete
             toggle_warning(pToGPIOC1);
             //save errorBuffer to the flash memory
-            flash_write_data(pToSPI1, global_memory_page_tracker, errorBufferLength, errorBuffer);
+            //flash_write_data(pToSPI1, global_memory_page_tracker, errorBufferLength, errorBuffer);
             //TODO:increment the global tracket to keep rack to where to save on the memory
         }
         esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
