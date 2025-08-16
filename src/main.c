@@ -28,7 +28,7 @@
 #include <bme280.h>
 
 static volatile uint8_t global_timer_fetch = 0;
-static volatile uint8_t global_memory_page_tracker[3] = {0x00, 0x00, 0x00};
+static volatile uint32_t global_memory_page_tracker = 0;
 struct bme280_dev bme280;
 struct bme280_data sensor_data;
 TIMER_Handler_t *pToTimer1;
@@ -37,6 +37,8 @@ TWI_handler_t *pToTWI1;
 USART_Handler_t *pToUSART0;
 GPIO_handler_t *pToGPIOC2;
 GPIO_handler_t *pToGPIOC1;
+uint8_t *pGlobalMemTracker;
+pGlobalMemTracker = &global_memory_page_tracker;
 
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
@@ -62,9 +64,6 @@ ISR (TIMER1_OVF_vect) {
         pressure = sensor_data.pressure;
         humidity = sensor_data.humidity;
         isRaining = read_rain(pToGPIOC2);
-    
-        // TODO: sends this data to the flash memory for storage and further use.
-        //flash_write_data(pToSPI,0x24,sizeof(double), tempBuffer);
 
         //setup conn to send data
         esp01s_setup(pToUSART0);
@@ -74,8 +73,10 @@ ISR (TIMER1_OVF_vect) {
             // toggle warning to advise that posting was not complete
             toggle_warning(pToGPIOC1);
             //save errorBuffer to the flash memory
-            //flash_write_data(pToSPI1, global_memory_page_tracker, errorBufferLength, errorBuffer);
+            flash_write_data(pToSPI1, pGlobalMemTracker, errorBufferLength, errorBuffer);
+            
             //TODO:increment the global tracket to keep rack to where to save on the memory
+            global_memory_page_tracker += FLASH_NEW_PAGE;
         }
         esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
         esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;

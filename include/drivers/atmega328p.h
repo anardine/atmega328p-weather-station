@@ -215,6 +215,8 @@ typedef struct {
 #define FLASH_SECTOR_ERASE      0X20
 #define FLASH_BLOCK_ERASE       0XD8   
 #define FLASH_FULL_CHIP_ERASE   0XC7
+#define FLASH_NEW_PAGE          0X100
+#define FLASH_MEM_TRACKER_RESET 0
 
 
 #endif // ATMEGA328P_H   // End of include guard
