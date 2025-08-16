@@ -38,7 +38,6 @@ USART_Handler_t *pToUSART0;
 GPIO_handler_t *pToGPIOC2;
 GPIO_handler_t *pToGPIOC1;
 uint8_t *pGlobalMemTracker;
-pGlobalMemTracker = &global_memory_page_tracker;
 
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
@@ -75,7 +74,7 @@ ISR (TIMER1_OVF_vect) {
             //save errorBuffer to the flash memory
             flash_write_data(pToSPI1, pGlobalMemTracker, errorBufferLength, errorBuffer);
             
-            //TODO:increment the global tracket to keep rack to where to save on the memory
+            //Increment the global tracket to keep rack to where to save on the memory
             global_memory_page_tracker += FLASH_NEW_PAGE;
         }
         esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
@@ -133,6 +132,8 @@ timer1_init(pToTimer1);
 // pToSPI1->SPIConfig.dataOrder =SPI_DATA_ORDER_MSB;
 // pToSPI1->SPIConfig.mode = SPI_MODE_MASTER;
 //check if more spi configs need to be set to commuicate well with the winbond flash
+
+pGlobalMemTracker = (uint8_t *) &global_memory_page_tracker;
 
 /* ----------- END OF FLASH INITIALIZATION ----------- */
 

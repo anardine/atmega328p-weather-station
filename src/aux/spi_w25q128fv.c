@@ -66,8 +66,8 @@ void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t le
     } 
 
        // set CS to high and low again given the necessity for the W25Q128FV to process
-        GPIOB->port ˆ= (1 << 2);
-        GPIOB->port ˆ= (1 << 2);
+        GPIOB->port ^= (1 << 2);
+        GPIOB->port ^= (1 << 2);
 
         uint8_t address = 0x02;
         // Page Program command (0x02)
@@ -98,15 +98,14 @@ void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length,
 
     }
     // set CS to high and low again given the necessity for the W25Q128FV to process
-    GPIOB->port ˆ= (1 << 2);
-    GPIOB->port ˆ= (1 << 2);
+    GPIOB->port ^= (1 << 2);
+    GPIOB->port ^= (1 << 2);
 
     // Erase logic: Use Sector Erase (0x20) or Block Erase (0xD8) or Chip Erase (0xC7)
     // Here, we'll use Sector Erase (0x20) for the address provided
     // You can change to 0xD8 for 64KB block erase or 0xC7 for chip erase
 
     //Chip Erase command (0xC7) REVIEW CODE
-    uint8_t eraseMode = eraseMode;
     spi_write(pToSPIx, &eraseMode, 1); // Send erase command
     //spi_write(pToSPIx, blockAddress, 3); // Send 3-byte address only for sector or block erase
 
