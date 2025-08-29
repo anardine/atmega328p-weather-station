@@ -6,9 +6,9 @@
 // Configuration Structures
 
 typedef struct {
-    uint8_t ddr;   // Data Direction Register address or value
-    uint8_t port;  // Port Data Register address or value
-    uint8_t pin;   // Pin Input Register address or value
+    uint8_t pin;    // Pin Input Register address or value
+    uint8_t ddr;    // Data Direction Register address or value
+    uint8_t port;   // Port Data Register address or value
 } GPIO_TypeDef;
 
 typedef struct {
