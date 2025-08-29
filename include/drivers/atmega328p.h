@@ -4,13 +4,14 @@
 #include <stdint.h>         // Include standard integer types
 
 // Configuration Structures
-
+// VALIDATED
 typedef struct {
     uint8_t pin;    // Pin Input Register address or value
     uint8_t ddr;    // Data Direction Register address or value
     uint8_t port;   // Port Data Register address or value
 } GPIO_TypeDef;
 
+//NOT VALIDATED
 typedef struct {
     uint8_t tccra; // Timer/Counter Control Register A
     uint8_t tccrb; // Timer/Counter Control Register B
@@ -21,6 +22,7 @@ typedef struct {
     uint8_t tifr;  // Timer Interrupt Flag Register
 } TIMER8_TypeDef;
 
+//NOT VALIDATED
 typedef struct {
     uint8_t tccra;     // Timer/Counter Control Register A
     uint8_t tccrb;     // Timer/Counter Control Register B
@@ -33,6 +35,7 @@ typedef struct {
     uint8_t tifr;      // Timer Interrupt Flag Register
 } TIMER16_TypeDef;
 
+//NOT VALIDATED
 typedef struct {
     uint8_t admux;     // ADC Multiplexer Selection Register
     uint8_t adcsra;    // ADC Control and Status Register A
@@ -40,6 +43,7 @@ typedef struct {
     uint16_t adc;      // ADC Data Register (16-bit)
 } ADC_TypeDef;
 
+//VALIDATED
 typedef struct {
     uint8_t ucsra;     // USART Control and Status Register A
     uint8_t ucsrb;     // USART Control and Status Register B
@@ -50,12 +54,14 @@ typedef struct {
     uint8_t udr;       // USART I/O Data Register
 } USART_TypeDef;
 
+//VALIDATED
 typedef struct {
     uint8_t spcr;      // SPI Control Register
     uint8_t spsr;      // SPI Status Register
     uint8_t spdr;      // SPI Data Register
 } SPI_TypeDef;
 
+//VALIDATED
 typedef struct {
     uint8_t twbr;      // TWI Bit Rate Register
     uint8_t twsr;      // TWI Status Register
