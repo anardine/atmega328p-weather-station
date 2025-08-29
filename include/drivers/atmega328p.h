@@ -41,12 +41,13 @@ typedef struct {
 } ADC_TypeDef;
 
 typedef struct {
-    uint8_t udr;       // USART I/O Data Register
     uint8_t ucsra;     // USART Control and Status Register A
     uint8_t ucsrb;     // USART Control and Status Register B
     uint8_t ucsrc;     // USART Control and Status Register C
+    uint8_t reserved;  // reserved bit
     uint8_t ubrrl;     // USART Baud Rate Register Low
     uint8_t ubrrh;     // USART Baud Rate Register High
+    uint8_t udr;       // USART I/O Data Register
 } USART_TypeDef;
 
 typedef struct {

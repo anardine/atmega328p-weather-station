@@ -8,7 +8,7 @@ void usart_init(USART_Handler_t *USARTHandler) {
     // Calculate baud rate register value based on double speed setting
     if (!(USARTHandler->USARTConfig.doubleSpeed)) {
         // Asynchronous Normal mode (U2Xn = 0)
-        ubbrn = (F_CPU / (16 * USARTHandler->USARTConfig.baudRate)) - 1;
+        ubbrn = ((F_CPU / (16 * USARTHandler->USARTConfig.baudRate)) - 1);
         USARTHandler->pUSARTx->ucsra &= ~USART_U2X; // Ensure double speed is disabled
     } else {
         // Asynchronous Double Speed mode (U2Xn = 1)
