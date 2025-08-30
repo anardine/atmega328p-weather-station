@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "drivers/atmega328p.h"
+#include <avr/io.h>
 
 typedef struct {
     uint32_t baudRate;         // Baud rate (e.g., 9600, 115200)
@@ -24,8 +25,8 @@ typedef struct
 
 void usart_init(USART_Handler_t *USARTHandler);
 
-void usart_transmit(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t lengh);
+void usart_transmit(uint8_t *data, uint16_t lengh);
 
-void usart_receive(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t length);
+void usart_receive(uint8_t *data, uint16_t length);
 
 #endif

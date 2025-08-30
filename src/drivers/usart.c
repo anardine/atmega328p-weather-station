@@ -9,7 +9,6 @@ void usart_init(USART_Handler_t *USARTHandler) {
     if (!(USARTHandler->USARTConfig.doubleSpeed)) {
         // Asynchronous Normal mode (U2Xn = 0)
         ubbrn = ((F_CPU / (16 * USARTHandler->USARTConfig.baudRate)) - 1);
-        USARTHandler->pUSARTx->ucsra &= ~USART_U2X; // Ensure double speed is disabled
     } else {
         // Asynchronous Double Speed mode (U2Xn = 1)
         USARTHandler->pUSARTx->ucsra |= USART_U2X; // Enable double speed
@@ -17,7 +16,7 @@ void usart_init(USART_Handler_t *USARTHandler) {
     }
 
     // Set baud rate registers (split 16-bit value into two 8-bit registers)
-    USARTHandler->pUSARTx->ubrrl = (uint8_t)ubbrn;      // Set low byte
+    USARTHandler->pUSARTx->ubrrl = ubbrn;               // Set low byte
     USARTHandler->pUSARTx->ubrrh = (ubbrn >> 8);        // Set high byte
 
     // Set frame format: data bits, stop bits, parity
@@ -28,7 +27,7 @@ void usart_init(USART_Handler_t *USARTHandler) {
         case 5: ucsrc |= 0; break; // 5-bit
         case 6: ucsrc |= (1 << 1); break; // 6-bit
         case 7: ucsrc |= (1 << 2); break; // 7-bit
-        case 8: ucsrc |= (1 << 1) | (1 << 2); break; // 8-bit
+        case 8: ucsrc |= (3 << 1);  break; // 8-bit
         case 9: ucsrc |= (1 << 1) | (1 << 2) | (1 << 6); break; // 9-bit
         default: ucsrc |= (1 << 1) | (1 << 2); break; // Default to 8-bit
     }
@@ -54,26 +53,23 @@ void usart_init(USART_Handler_t *USARTHandler) {
 }
 
 
-void usart_transmit(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t length) {
+void usart_transmit(uint8_t *data, uint16_t length)
+{
     // Transmit 'length' bytes from the data buffer
+    // Wait for transmit buffer to be empty (UDREn bit in UCSRA)
+    while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
     for (uint16_t i = 0; i < length; i++) {
-        // Wait for transmit buffer to be empty (UDREn bit in UCSRA)
-        while (!(USARTHandler->pUSARTx->ucsra & (1 << 5))) {
-            // Wait until ready
-        }
         // Put data into buffer, sends the byte
-        USARTHandler->pUSARTx->udr = data[i];
+        UDR0 = data[i];
+        while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
     }
 }
 
-void usart_receive(USART_Handler_t *USARTHandler, uint8_t *data, uint16_t length) {
+void usart_receive(uint8_t *data, uint16_t length) {
     // Receive 'length' bytes into the data buffer
     for (uint16_t i = 0; i < length; i++) {
-        // Wait for data to be received (RXCn bit in UCSRA)
-        while (!(USARTHandler->pUSARTx->ucsra & (1 << 7))) {
-            // Wait until data is received
-        }
+        while (( UCSR0A & (1<<RXC0)) == 0) {}; // Do nothing until UDR is ready
         // Get and return received data from buffer
-        data[i] = USARTHandler->pUSARTx->udr;
+        data[i] = UDR0;
     }
 }
