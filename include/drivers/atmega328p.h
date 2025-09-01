@@ -2,6 +2,8 @@
 #define ATMEGA328P_H
 
 #include <stdint.h>         // Include standard integer types
+#include <avr/io.h>
+#include <avr/interrupt.h>
 
 // Configuration Structures
 // VALIDATED

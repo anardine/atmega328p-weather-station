@@ -2,8 +2,6 @@
 #define TIMER_H
 
 #include <stdint.h>
-#include <avr/interrupt.h>
-#include <avr/io.h>
 #include "drivers/atmega328p.h"
 
 // Timer configuration structure
