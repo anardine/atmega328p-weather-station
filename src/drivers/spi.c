@@ -11,13 +11,13 @@ void spi_init(SPI_Handler_t *spiHandler)
     // Configure SPI pins as outputs/inputs based on master/slave mode
     if (spiHandler->SPIConfig.mode == SPI_MODE_MASTER) {
         // Master mode: Set MOSI, SCK, and SS as outputs, MISO as input
-        GPIOB->ddr |= (1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN);
-        GPIOB->ddr &= ~(1 << SPI_MISO_PIN);
+        DDRB |= (1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN);
+        DDRB &= ~(1 << SPI_MISO_PIN);
         
     } else {
         // Slave mode: Set MISO as output, MOSI, SCK, and SS as inputs
-        GPIOB->ddr |= (1 << SPI_MISO_PIN);
-        GPIOB->ddr &= ~((1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN));
+        DDRB |= (1 << SPI_MISO_PIN);
+        DDRB &= ~((1 << SPI_MOSI_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_SS_PIN));
     }
     
     // Configure SPCR (SPI Control Register)
@@ -52,17 +52,17 @@ void spi_init(SPI_Handler_t *spiHandler)
     spcr |= (spiHandler->SPIConfig.clockRate & 0x03);
     
     // Write to SPCR register
-    spiHandler->pToSPIx->spcr = spcr;
+        SPCR = spcr;
     
     // Configure SPSR (SPI Status Register) for double speed if needed
     uint8_t spsr = spiHandler->pToSPIx->spsr & 0xFE; // Clear SPI2X bit
     if (spiHandler->SPIConfig.doubleSpeed == SPI_CLOCK_DOUBLE) {
         spsr |= (1 << SPI_SPI2X);
     }
-    spiHandler->pToSPIx->spsr = spsr;
+        SPSR = spsr;
 
     // Enable SPI
-    spcr |= (1 << SPI_SPE);
+    SPCR |= (1 << SPI_SPE);
 }
 
 /**
@@ -80,14 +80,14 @@ uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t *data, uint32_t length)
 
     for(uint32_t i=0; i<length; i++) {
     // Start transmission by writing data to SPDR
-    spiHandler->pToSPIx->spdr = data[i];
+    SPDR = data[i];
     
     // Wait for transmission complete (SPIF flag in SPSR)
-    while (!(spiHandler->pToSPIx->spsr & (1 << SPI_SPIF)));
+    while (!(SPSR & (1 << SPI_SPIF)));
 
     }
 
-    return spiHandler->pToSPIx->spdr;
+    return SPSR;
 
 }
 
