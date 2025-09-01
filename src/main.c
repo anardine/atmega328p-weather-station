@@ -40,7 +40,6 @@ GPIO_handler_t *pToGPIOC2;
 GPIO_handler_t *pToGPIOC1;
 uint8_t *pGlobalMemTracker;
 
-
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
 
 //Timer interrupt routine
@@ -62,7 +61,7 @@ ISR(TIMER1_OVF_vect) {
         static volatile double humidity = 0;
         static volatile uint8_t isRaining = 0;
 
-        //buffer to get the data that was going to be sent to the ESP modeule
+        //buffer to get the data that was going to be sent to the ESP module
         char *errorBuffer;
         uint8_t errorBufferLength = 100;
 
@@ -125,29 +124,29 @@ int main(void) {
 
 /* ----------- TWI INITIALIZATION ----------- */
 
-pToTWI1->pTWIx = TWI1;
-pToTWI1->TWIConfig.speed = 100;
+    pToTWI1->pTWIx = TWI1;
+    pToTWI1->TWIConfig.speed = 100;
+
 /* ----------- END OF TWI INITIALIZATION ----------- */
 
 /* ----------- BME280 INITIALIZATION ----------- */
-bme280_set_twi_handler(pToTWI1);
+    bme280_set_twi_handler(pToTWI1);
+    bme280.chip_id = BME280_I2C_ADDR_PRIM;
+    bme280.intf = BME280_I2C_INTF;
+    bme280.read = bme280_i2c_read;
+    bme280.write = bme280_i2c_write;
+    bme280.delay_us = bme280_delay_ms;
 
-bme280.chip_id = BME280_I2C_ADDR_PRIM;
-bme280.intf = BME280_I2C_INTF;
-bme280.read = bme280_i2c_read;
-bme280.write = bme280_i2c_write;
-bme280.delay_us = bme280_delay_ms;
-
-bme280_init(&bme280);
+    bme280_init(&bme280);
 
 /* ----------- END OF BME280 INITIALIZATION ----------- */
 
 /* ----------- TIMER INITIALIZATION ----------- */
 
-pToTimer1->config.prescaler = 1024;
-pToTimer1->pTIMERx = TIMER1;
+    pToTimer1->config.prescaler = 1024;
+    pToTimer1->pTIMERx = TIMER1;
 
-timer1_init(pToTimer1);
+    timer1_init(pToTimer1);
 
 /* ----------- END OF TIMER INITIALIZATION ----------- */
 
@@ -185,6 +184,8 @@ timer1_init(pToTimer1);
 
 /* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 
+    sei(); //enable interrupting
+
     char programInitEnd[] = "Program Inititialization Completed\n";
     usart_transmit((uint8_t*)&programInitEnd, sizeof(programInitEnd));
 
@@ -193,28 +194,6 @@ timer1_init(pToTimer1);
 while (1==1)
 {
 
-    // Fetch the data from the BME280 sensor and save to variables
-    bme280_get_sensor_data(BME280_ALL, &sensor_data, &bme280);
-
-    static volatile double temperature = 0;
-    static volatile double pressure = 0;
-    static volatile double humidity = 0;
-    static volatile uint8_t isRaining = 0;
-
-    //buffer to get the data that was going to be sent to the ESP modeule
-    char *errorBuffer;
-    uint8_t errorBufferLength = 100;
-
-    temperature = sensor_data.temperature;
-    pressure = sensor_data.pressure;
-    humidity = sensor_data.humidity;
-    isRaining = read_rain(pToGPIOC2);
-
-    //setup conn to send data - SENDING FIRST TO DEBUG CONSOLE
-    //esp01s_setup(pToUSART0);
-
-    // send the data to the server via ESP01-S
-    esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength);
 
 }
     
