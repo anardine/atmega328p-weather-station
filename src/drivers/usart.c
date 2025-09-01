@@ -16,8 +16,8 @@ void usart_init(USART_Handler_t *USARTHandler) {
     }
 
     // Set baud rate registers (split 16-bit value into two 8-bit registers)
-    USARTHandler->pUSARTx->ubrrl = ubbrn;               // Set low byte
-    USARTHandler->pUSARTx->ubrrh = (ubbrn >> 8);        // Set high byte
+    UBRR0L = ubbrn;               // Set low byte
+    UBRR0H = (ubbrn >> 8);        // Set high byte
 
     // Set frame format: data bits, stop bits, parity
     uint8_t ucsrc = 0;
@@ -34,7 +34,7 @@ void usart_init(USART_Handler_t *USARTHandler) {
 
     // Set number of stop bits (1 or 2)
     if (USARTHandler->USARTConfig.stopBitQuantity == 2) {
-        ucsrc |= (1 << 3); // Set USBS for 2 stop bits
+        UCSR0C |= (1 << 3); // Set USBS for 2 stop bits
     }
 
     // Set parity (0: None, 1: Even, 2: Odd)
@@ -45,10 +45,10 @@ void usart_init(USART_Handler_t *USARTHandler) {
     }
 
     // Write frame format to UCSRC register
-    USARTHandler->pUSARTx->ucsrc = ucsrc;
+    UCSR0C = ucsrc;
 
     // Enable transmitter and receiver
-    USARTHandler->pUSARTx->ucsrb |= (1 << 3) | (1 << 4); // TXENn and RXENn
+    UCSR0B |= (1 << 3) | (1 << 4); // TXENn and RXENn
     // USART is now configured and ready for use
 }
 
