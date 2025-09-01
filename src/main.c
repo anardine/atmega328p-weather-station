@@ -184,8 +184,6 @@ int main(void) {
 
 /* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 
-    sei(); //enable interrupting
-
     char programInitEnd[] = "Program Inititialization Completed\n";
     usart_transmit((uint8_t*)&programInitEnd, sizeof(programInitEnd));
 

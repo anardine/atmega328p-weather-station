@@ -27,10 +27,11 @@ typedef struct {
     uint8_t tccra;     // Timer/Counter Control Register A
     uint8_t tccrb;     // Timer/Counter Control Register B
     uint8_t tccrc;     // Timer/Counter Control Register C
+    uint8_t reserved;  // Reserved
     uint16_t tcnt;     // Timer/Counter Value (16-bit)
+    uint16_t icr;      // Input Capture Register (16-bit)
     uint16_t ocra;     // Output Compare Register A (16-bit)
     uint16_t ocrb;     // Output Compare Register B (16-bit)
-    uint16_t icr;      // Input Capture Register (16-bit)
     uint8_t timsk;     // Timer Interrupt Mask Register
     uint8_t tifr;      // Timer Interrupt Flag Register
 } TIMER16_TypeDef;
