@@ -38,7 +38,7 @@ void twi_init(TWI_handler_t *twiHandler);
  * @param length Number of bytes to send.
  * @return 0 on success, non-zero on error.
  */
-int twi_write(TWI_handler_t *twiHandler, uint8_t address, const uint8_t *data, uint16_t length);
+int twi_write(uint8_t address, const uint8_t *data, uint16_t length);
 
 /**
  * @brief Receives data over TWI from a specific address.
@@ -51,7 +51,7 @@ int twi_write(TWI_handler_t *twiHandler, uint8_t address, const uint8_t *data, u
  * @param length Number of bytes to read.
  * @return 0 on success, non-zero on error.
  */
-int twi_read(TWI_handler_t *twiHandler, uint8_t address, uint8_t *data, uint16_t length);
+int twi_read(uint8_t address, uint8_t *data, uint16_t length);
 
 
 #endif // end I2C_H

@@ -21,7 +21,7 @@ void twi_init(TWI_handler_t *twiHandler) {
 }
 
 
-int twi_write(TWI_handler_t *twiHandler, uint8_t address, const uint8_t *data, uint16_t length) {
+int twi_write(uint8_t address, const uint8_t *data, uint16_t length) {
     // Send START condition
     TWCR = TWI_START | TWI_ENABLE | TWI_INTERRUPT; // Request START
     while (!(TWCR & TWI_INTERRUPT)); // Wait for START to complete
@@ -50,7 +50,7 @@ int twi_write(TWI_handler_t *twiHandler, uint8_t address, const uint8_t *data, u
 }
 
 
-int twi_read(TWI_handler_t *twiHandler, uint8_t address, uint8_t *data, uint16_t length) {
+int twi_read(uint8_t address, uint8_t *data, uint16_t length) {
     // Send START condition
     TWCR = TWI_START | TWI_ENABLE | TWI_INTERRUPT; // Request START
     while (!(TWCR & TWI_INTERRUPT)); // Wait for START to complete
