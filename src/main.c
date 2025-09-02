@@ -45,12 +45,9 @@ uint8_t *pGlobalMemTracker;
 //Timer interrupt routine
 ISR(TIMER1_OVF_vect) {
 
-    char InterruptInit[] = "ISR Routine Triggered\n";
-    usart_transmit((uint8_t*)&InterruptInit, sizeof(InterruptInit));
+    if(global_timer_fetch == 8) { // around 60 seconds per action on this interrupt routine :276 on simavr for testing
 
-    if(global_timer_fetch >= 8) { // around 60 seconds per action on this interrupt routine
-
-        char TimerComp[] = "Global Timer reached 8... Saving Weather Data\n";
+        char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
         usart_transmit((uint8_t*)&TimerComp, sizeof(TimerComp));
 
         // Fetch the data from the BME280 sensor and save to variables
@@ -70,19 +67,25 @@ ISR(TIMER1_OVF_vect) {
         humidity = sensor_data.humidity;
         isRaining = read_rain(pToGPIOC2);
 
+        char weatherData[] = "Temperature data Collected:\n";
+        usart_transmit((uint8_t*)&weatherData, sizeof(weatherData));
+        usart_transmit((uint8_t*)&temperature, sizeof(temperature));
+
+        //esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength);
+
         //setup conn to send data - SENDING FIRST TO DEBUG CONSOLE
         //esp01s_setup(pToUSART0);
 
         // send the data to the server via ESP01-S
-        if(esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength)) {
-            // toggle warning to advise that posting was not complete
-            toggle_warning(pToGPIOC1);
-            //save errorBuffer to the flash memory
-            //flash_write_data(pToSPI1, pGlobalMemTracker, errorBufferLength, errorBuffer);
-
-            //Increment the global tracket to keep rack to where to save on the memory
-            //global_memory_page_tracker += FLASH_NEW_PAGE;
-        }
+        // if(esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength)) {
+        //     // toggle warning to advise that posting was not complete
+        //     toggle_warning(pToGPIOC1);
+        //     //save errorBuffer to the flash memory
+        //     //flash_write_data(pToSPI1, pGlobalMemTracker, errorBufferLength, errorBuffer);
+        //
+        //     //Increment the global tracket to keep rack to where to save on the memory
+        //     //global_memory_page_tracker += FLASH_NEW_PAGE;
+        // }
         // esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
         // esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;
         // esp01s_send_rain(pToUSART0, isRaining) ? toggle_warning(pToGPIOC1) : 0;
@@ -95,7 +98,7 @@ ISR(TIMER1_OVF_vect) {
     global_timer_fetch++;
 
     // resets the timer
-    TIMER1->tcnt = 0x00;
+    TCNT1 = 0x00;
 }
 
 /* ----------------------- END OF INTERRUPT ROUTINES ----------------------- */
