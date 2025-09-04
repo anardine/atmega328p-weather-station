@@ -18,20 +18,18 @@
 #include "drivers/twi.h"
 #include "drivers/usart.h"
 #include "aux/twi_bme280.h"
+#include "drivers/bme280.h"
 #include "aux/spi_w25q128fv.h"
 #include "aux/usart_esp01s.h"
 #include "aux/gpio_mhrain.h"
 #include "aux/gpio_warning.h"
 #include "config.h"
 
-// Include driver for BME280
-#include <bme280.h>
-
 //definition of global variables
  volatile uint8_t global_timer_fetch = 0;
  volatile uint32_t global_memory_page_tracker = 0;
- struct bme280_dev bme280;
- struct bme280_data sensor_data;
+ // struct bme280_dev bme280;
+ // struct bme280_data sensor_data;
  TIMER_Handler_t *pToTimer1;
  SPI_Handler_t *pToSPI1;
  TWI_handler_t *pToTWI1;
@@ -45,27 +43,32 @@ uint8_t *pGlobalMemTracker;
 //Timer interrupt routine
 ISR(TIMER1_OVF_vect) {
 
-    if(global_timer_fetch == 8) { // around 60 seconds per action on this interrupt routine :276 on simavr for testing
+    if(global_timer_fetch == 1) { // around 60 seconds per action on this interrupt routine :276 on simavr for testing
 
         char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
         usart_transmit((uint8_t*)&TimerComp, sizeof(TimerComp));
 
-        // Fetch the data from the BME280 sensor and save to variables
-        bme280_get_sensor_data(BME280_ALL, &sensor_data, &bme280);
+        volatile float temperature = 0;
+        volatile float pressure = 0;
+        volatile float humidity = 0;
+        volatile uint8_t isRaining = 0;
 
-        static volatile double temperature = 0;
-        static volatile double pressure = 0;
-        static volatile double humidity = 0;
-        static volatile uint8_t isRaining = 0;
+        // Fetch the data from the BME280 sensor and save to variables
+        //bme280_get_sensor_data(BME280_ALL, &sensor_data, &bme280);
 
         //buffer to get the data that was going to be sent to the ESP module
         char *errorBuffer;
         uint8_t errorBufferLength = 100;
 
-        temperature = sensor_data.temperature;
-        pressure = sensor_data.pressure;
-        humidity = sensor_data.humidity;
-        isRaining = read_rain(pToGPIOC2);
+        //temperature = sensor_data.temperature;
+        // pressure = sensor_data.pressure;
+        // humidity = sensor_data.humidity;
+        // isRaining = read_rain(pToGPIOC2);
+
+        //using custom libs
+        temperature = bme280_readTemperature(0); // in °C
+        pressure = bme280_readPressure(0)/100.0; // in mbar
+        humidity = bme280_readHumidity(0); // in %
 
         char weatherData[] = "Temperature data Collected:\n";
         usart_transmit((uint8_t*)&weatherData, sizeof(weatherData));
@@ -126,29 +129,30 @@ int main(void) {
 /* ----------------------- BEGINING OF PERIPHERALS INITIALIZATION ----------------------- */
 
 /* ----------- TWI INITIALIZATION ----------- */
-
-    pToTWI1->pTWIx = TWI1;
-    pToTWI1->TWIConfig.speed = 100;
+    // not needed. Initialized by the BME itslef
+    //pToTWI1->TWIConfig.speed = 100;
 
 /* ----------- END OF TWI INITIALIZATION ----------- */
 
 /* ----------- BME280 INITIALIZATION ----------- */
-    bme280_set_twi_handler(pToTWI1);
-    bme280.chip_id = BME280_I2C_ADDR_PRIM;
-    bme280.intf = BME280_I2C_INTF;
-    bme280.read = bme280_i2c_read;
-    bme280.write = bme280_i2c_write;
-    bme280.delay_us = bme280_delay_ms;
 
-    bme280_init(&bme280);
+    // init sensor
+    i2c_init();
+    bme280_init(0);
+
+    // bme280.chip_id = BME280_I2C_ADDR_PRIM;
+    // bme280.intf = BME280_I2C_INTF;
+    // bme280.read = bme280_i2c_read;
+    // bme280.write = bme280_i2c_write;
+    // bme280.delay_us = bme280_delay_ms;
+    //
+    // bme280_init(&bme280);
 
 /* ----------- END OF BME280 INITIALIZATION ----------- */
 
 /* ----------- TIMER INITIALIZATION ----------- */
 
     pToTimer1->config.prescaler = 1024;
-    pToTimer1->pTIMERx = TIMER1;
-
     timer1_init(pToTimer1);
 
 /* ----------- END OF TIMER INITIALIZATION ----------- */
