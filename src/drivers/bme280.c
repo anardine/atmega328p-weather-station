@@ -223,7 +223,7 @@ uint8_t bme280_read1Byte(uint8_t addr, uint8_t sensor){
     i2c_start((SENSOR_ADDR << 1));
     i2c_byte(addr);
     i2c_stop();
-    i2c_start((SENSOR_ADDR << 1));
+    i2c_start(((SENSOR_ADDR << 1) | 0x01));
     value = i2c_readNAck();
     i2c_stop();
     return value;
@@ -233,7 +233,7 @@ uint16_t bme280_read2Byte(uint8_t addr, uint8_t sensor){
     i2c_start((SENSOR_ADDR << 1));
     i2c_byte(addr);
     i2c_stop();
-    i2c_start((SENSOR_ADDR << 1));
+    i2c_start(((SENSOR_ADDR << 1) | 0x01));
     value = i2c_readAck();
     value <<= 8;
     value |= i2c_readNAck();
@@ -245,7 +245,7 @@ uint32_t bme280_read3Byte(uint8_t addr, uint8_t sensor){
     i2c_start((SENSOR_ADDR << 1));
     i2c_byte(addr);
     i2c_stop();
-    i2c_start((SENSOR_ADDR << 1));
+    i2c_start(((SENSOR_ADDR << 1) | 0x01));
     value = i2c_readAck();
     value <<= 8;
     value |= i2c_readAck();
