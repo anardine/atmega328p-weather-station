@@ -46,7 +46,7 @@ ISR(TIMER1_OVF_vect) {
     if(global_timer_fetch == 1) { // around 60 seconds per action on this interrupt routine :276 on simavr for testing
 
         char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
-        usart_transmit((uint8_t*)&TimerComp, sizeof(TimerComp));
+        usart_transmit((uint8_t*)&TimerComp, strlen(TimerComp));
 
         volatile float temperature = 0;
         volatile float pressure = 0;
@@ -70,9 +70,11 @@ ISR(TIMER1_OVF_vect) {
         pressure = bme280_readPressure(0)/100.0; // in mbar
         humidity = bme280_readHumidity(0); // in %
 
-        char weatherData[] = "Temperature data Collected:\n";
-        usart_transmit((uint8_t*)&weatherData, sizeof(weatherData));
-        usart_transmit((uint8_t*)&temperature, sizeof(temperature));
+        char tempData[60];
+
+        snprintf(tempData, sizeof(tempData),
+        "type=temperature&sensor=bme280&value=%.2f&unit=celsius \n", temperature);
+        usart_transmit((uint8_t*)&tempData, strlen(tempData));
 
         //esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength);
 
@@ -121,10 +123,10 @@ int main(void) {
 
     /* ----------- END OF USART INITIALIZATION ----------- */
     char usartInit[] = "USART0 Initialized - 9600 8N1\n";
-    usart_transmit((uint8_t*)&usartInit, sizeof(usartInit));
+    usart_transmit((uint8_t*)&usartInit, strlen(usartInit));
 
     char programInit[] = "Program Inititialization Started\n";
-    usart_transmit((uint8_t*)&programInit, sizeof(programInit));
+    usart_transmit((uint8_t*)&programInit, strlen(programInit));
 
 /* ----------------------- BEGINING OF PERIPHERALS INITIALIZATION ----------------------- */
 
@@ -192,7 +194,7 @@ int main(void) {
 /* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 
     char programInitEnd[] = "Program Inititialization Completed\n";
-    usart_transmit((uint8_t*)&programInitEnd, sizeof(programInitEnd));
+    usart_transmit((uint8_t*)&programInitEnd, strlen(programInitEnd));
 
 /* ----------------------- MAIN LOOP ----------------------- */
 
