@@ -13,9 +13,8 @@ int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)"AT\r\n", 4);
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL)
-        break;
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
     }
     if (retries == 3) return -1;
 
@@ -24,9 +23,8 @@ int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)"AT+UART_DEF=115200,8,1,0,0\r\n", 28);
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL)
-            break;
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
     }
     if (retries == 3) return -2;
 
@@ -45,9 +43,8 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)"AT\r\n", 4);
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL)
-            break;
+        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
     }
     if (retries == 3) return -1;
 
@@ -55,9 +52,8 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)"AT+CWMODE=1\r\n", 14);
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL)
-            break;
+        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL) break;
     }
     if (retries == 3) return -2;
 
@@ -66,13 +62,12 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
         snprintf(cmdBuffer, sizeof(cmdBuffer), "AT+CWJAP=\"%s\",\"%s\"\r\n", WIFI_SSID, WIFI_PWD);
         usart_transmit((uint8_t*)cmdBuffer, strlen(cmdBuffer));
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "WIFI CONNECTED") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) break;
-        // if (strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) {
-        //     // Already connected, proceed
-        //     break;
-        // }
-        break; //remove when ready
+        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "WIFI CONNECTED") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) break;
+        if (strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) {
+            // Already connected, proceed
+            break;
+        }
     }
     if (retries == 3 && strstr(receiveBuffer, "ALREADY CONNECTED") == NULL) return -3;
 
@@ -80,8 +75,8 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)"AT+CIPMUX=0\r\n", 13);
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL)
+        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL)
             break;
     }
     if (retries == 3) return -4;
@@ -91,8 +86,8 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)cmdBuffer, strlen(cmdBuffer));
         delay();
-        // usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        // if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL)
+        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL)
             break;
     }
     if (retries == 3) return -5;
@@ -100,7 +95,7 @@ int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
     return 0; // Success
 }
 
-int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, char *errorBuffer, uint16_t errorBufferSize) {
+int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, float temperature) {
     static char dataToBeTransmitted[100];
     char httpRequest[300];
     char sendDataAT[100];
@@ -108,7 +103,7 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, c
 
     // Format data as HTTP POST form data
     snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
-        "type=temperature&sensor=bme280&value=%.2f&unit=celsius", temperature);
+        "type=temperature&sensor=bme280&value=%.1f&unit=celsius", temperature);
     
     // Create HTTP POST request
     snprintf(httpRequest, sizeof(httpRequest), 
@@ -149,18 +144,18 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, double temperature, c
     }
 }
 
-int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
+int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, float pressure) {
     char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
     // Format data as HTTP POST form data
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+    snprintf(dataToBeTransmitted, strlen(dataToBeTransmitted),
         "type=pressure&sensor=bme280&value=%.2f&unit=hpa", pressure);
     
     // Create HTTP POST request
-    snprintf(httpRequest, sizeof(httpRequest), 
+    snprintf(httpRequest, strlen(httpRequest),
         "POST /api.php HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
@@ -169,13 +164,13 @@ int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
         "%s", 
         WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
 
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if(strstr(receiveBuffer, ">") != NULL) break;
     }
     if (retries == 3) return -1;
@@ -183,24 +178,24 @@ int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, double pressure) {
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
 }
 
-int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
+int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, float humidity) {
     char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
     // Format data as HTTP POST form data (fix: was "pressure" should be "humidity")
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+    snprintf(dataToBeTransmitted, strlen(dataToBeTransmitted),
         "type=humidity&sensor=bme280&value=%.2f&unit=percent", humidity);
     
     // Create HTTP POST request
-    snprintf(httpRequest, sizeof(httpRequest), 
+    snprintf(httpRequest, strlen(httpRequest),
         "POST /api.php HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
@@ -209,13 +204,13 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
         "%s", 
         WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
 
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if(strstr(receiveBuffer, ">") != NULL) break;
     }
     if (retries == 3) return -1;
@@ -223,7 +218,7 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, double humidity) {
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
@@ -236,11 +231,11 @@ int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
     char receiveBuffer[100];
 
     // Format data as HTTP POST form data
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
+    snprintf(dataToBeTransmitted, strlen(dataToBeTransmitted),
         "type=rain&sensor=mh_rain&value=%u&unit=boolean", isRaining);
     
     // Create HTTP POST request
-    snprintf(httpRequest, sizeof(httpRequest), 
+    snprintf(httpRequest, strlen(httpRequest),
         "POST /api.php HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Content-Type: application/x-www-form-urlencoded\r\n"
@@ -249,13 +244,13 @@ int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
         "%s", 
         WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
 
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
 
     int retries;
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if(strstr(receiveBuffer, ">") != NULL) break;
     }
     if (retries == 3) return -1;
@@ -263,7 +258,7 @@ int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
     for (retries = 0; retries < 3; retries++) {
         usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
         delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
+        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
         if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
     }
     return -2;
