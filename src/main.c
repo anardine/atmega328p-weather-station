@@ -27,7 +27,7 @@
 
 //definition of global variables
  volatile uint8_t global_timer_fetch = 0;
- volatile uint32_t global_memory_page_tracker = 0;
+ //volatile uint32_t global_memory_page_tracker = 0;
  // struct bme280_dev bme280;
  // struct bme280_data sensor_data;
  TIMER_Handler_t *pToTimer1;
@@ -43,10 +43,11 @@ uint8_t *pGlobalMemTracker;
 //Timer interrupt routine
 ISR(TIMER1_OVF_vect) {
 
+    // TODO change global fetch timer to 8 for aprox 1 minute refference before oploading final operational code
     if(global_timer_fetch == 1) { // around 60 seconds per action on this interrupt routine :276 on simavr for testing
 
-        char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
-        usart_transmit((uint8_t*)&TimerComp, strlen(TimerComp));
+        // char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
+        // usart_transmit((uint8_t*)&TimerComp, strlen(TimerComp));
 
         volatile float temperature = 0;
         volatile float pressure = 0;
@@ -63,7 +64,7 @@ ISR(TIMER1_OVF_vect) {
         //temperature = sensor_data.temperature;
         // pressure = sensor_data.pressure;
         // humidity = sensor_data.humidity;
-        // isRaining = read_rain(pToGPIOC2);
+        isRaining = (!(read_rain(pToGPIOC2))); // negated because for MH sensor 0 is raining
 
         //using custom libs
         temperature = bme280_readTemperature(0); // in °C
@@ -71,12 +72,27 @@ ISR(TIMER1_OVF_vect) {
         humidity = bme280_readHumidity(0); // in %
 
         char tempData[60];
+        char humData[60];
+        char pressData[60];
+        char rainData[60];
 
-        snprintf(tempData, sizeof(tempData),
-        "type=temperature&sensor=bme280&value=%.2f&unit=celsius \n", temperature);
-        usart_transmit((uint8_t*)&tempData, strlen(tempData));
+        // snprintf(tempData, sizeof(tempData),
+        // "type=temperature&sensor=bme280&value=%.1f&unit=celsius\n", temperature);
+        // usart_transmit((uint8_t*)&tempData, strlen(tempData));
+        //
+        // snprintf(pressData, sizeof(pressData),
+        // "type=pressure&sensor=bme280&value=%df&unit=mbar\n", pressure);
+        // usart_transmit((uint8_t*)&pressData, strlen(pressData));
+        //
+        // snprintf(humData, sizeof(humData),
+        // "type=humidity&sensor=bme280&value=%df&unit=percent\n", humidity);
+        // usart_transmit((uint8_t*)&humData, strlen(humData));
+        //
+        // snprintf(rainData, sizeof(rainData),
+        // "type=rain&sensor=mh&value=%d&unit=bool\n\n", isRaining);
+        // usart_transmit((uint8_t*)&rainData, strlen(rainData));
 
-        //esp01s_send_temperature(pToUSART0, temperature,errorBuffer, errorBufferLength);
+
 
         //setup conn to send data - SENDING FIRST TO DEBUG CONSOLE
         //esp01s_setup(pToUSART0);
@@ -91,9 +107,11 @@ ISR(TIMER1_OVF_vect) {
         //     //Increment the global tracket to keep rack to where to save on the memory
         //     //global_memory_page_tracker += FLASH_NEW_PAGE;
         // }
-        // esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
-        // esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;
-        // esp01s_send_rain(pToUSART0, isRaining) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_pressure(pToUSART0, pressure) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_humidity(pToUSART0, humidity) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_temperature(pToUSART0, temperature) ? toggle_warning(pToGPIOC1) : 0;
+        esp01s_send_rain(pToUSART0, isRaining) ? toggle_warning(pToGPIOC1) : 0;
+
 
         // resets the counter
         global_timer_fetch = 0;
@@ -122,11 +140,11 @@ int main(void) {
     usart_init(pToUSART0);
 
     /* ----------- END OF USART INITIALIZATION ----------- */
-    char usartInit[] = "USART0 Initialized - 9600 8N1\n";
-    usart_transmit((uint8_t*)&usartInit, strlen(usartInit));
-
-    char programInit[] = "Program Inititialization Started\n";
-    usart_transmit((uint8_t*)&programInit, strlen(programInit));
+    // char usartInit[] = "USART0 Initialized - 9600 8N1\n";
+    // usart_transmit((uint8_t*)&usartInit, strlen(usartInit));
+    //
+    // char programInit[] = "Program Inititialization Started\n";
+    // usart_transmit((uint8_t*)&programInit, strlen(programInit));
 
 /* ----------------------- BEGINING OF PERIPHERALS INITIALIZATION ----------------------- */
 
@@ -176,11 +194,11 @@ int main(void) {
 /* ----------- END OF ESP INITIALIZATION ----------- */
 
 /* ----------- GPIO RAIN INITIALIZATION ----------- */
-// pToGPIOC2->pToGPIOx = GPIOC;
-// pToGPIOC2->gpioConfig.inputOrOutput = GPIO_INPUT;
-// pToGPIOC2->gpioConfig.pinNumber = 2;
-//
-// gpio_init(pToGPIOC2);
+pToGPIOC2->pToGPIOx = GPIOC;
+pToGPIOC2->gpioConfig.inputOrOutput = GPIO_INPUT;
+pToGPIOC2->gpioConfig.pinNumber = 2;
+
+gpio_init(pToGPIOC2);
 
 /* ----------- END OF GPIO RAIN INITIALIZATION ----------- */
 
@@ -193,8 +211,8 @@ int main(void) {
 
 /* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 
-    char programInitEnd[] = "Program Inititialization Completed\n";
-    usart_transmit((uint8_t*)&programInitEnd, strlen(programInitEnd));
+    // char programInitEnd[] = "Program Inititialization Completed\n";
+    // usart_transmit((uint8_t*)&programInitEnd, strlen(programInitEnd));
 
 /* ----------------------- MAIN LOOP ----------------------- */
 
