@@ -4,7 +4,7 @@
 #include "drivers/atmega328p.h"
 #include "drivers/gpio.h"
 
-uint8_t read_rain(GPIO_handler_t *pToGPIOx);
+uint8_t read_rain(GPIO_handler_t *pToGPIOCx);
 
 
 #endif // GPIO_MHRAIN_H

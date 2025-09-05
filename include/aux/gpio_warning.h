@@ -4,7 +4,7 @@
 #include "drivers/atmega328p.h"
 #include "drivers/gpio.h"
 
-void toggle_warning(GPIO_handler_t *pToGPIOx);
+void toggle_warning(GPIO_handler_t *pToGPIOCx);
 
 
 #endif // GPIO_WARNING_H
