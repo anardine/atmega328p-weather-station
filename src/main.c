@@ -130,8 +130,10 @@ int main(void) {
     pToUSART0->USARTConfig.doubleSpeed = 0;
     pToUSART0->USARTConfig.parityMode = 0;
 
+#if DEBUG_MODE
     // enabling USART for debugging through FTDI
     usart_init(pToUSART0);
+#endif
 
     /* ----------- END OF USART INITIALIZATION ----------- */
 
