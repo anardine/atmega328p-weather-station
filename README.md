@@ -46,14 +46,14 @@ This is the architectural diagram of the design:
 
 The module is composed of:
 
-*Microcontroller:* ATMEGA328P-U
-*Temperature Sensor:* Bosch BME280
-*Pressure Sensor:* Bosch BME280
-*Humidity Sensor:* Bosch BME280
-*Wind Sensor:* Not present on the original project but can be connected on the Wind Sensor GPIO
-*Rain Sensor:* Generic Arduino MH Rain Sensor
-*Wifi Module:* ESP01-S
-*Flash:* Winbound 25Q128FVIQ
+- **Microcontroller:** ATMEGA328P-U
+- **Temperature Sensor:** Bosch BME280
+- **Pressure Sensor:** Bosch BME280
+- **Humidity Sensor:** Bosch BME280
+- **Wind Sensor:** Not present on the original project but can be connected on the Wind Sensor GPIO
+- **Rain Sensor:** Generic Arduino MH Rain Sensor
+- **Wifi Module:** ESP01-S
+- **Flash:** Winbound 25Q128FVIQ
 
 The hardware, gerber, fabrication files and assembly pictures are included at: https://oshwlab.com/anardine.ef/weather-station
 
