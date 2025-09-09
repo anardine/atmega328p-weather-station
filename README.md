@@ -1,13 +1,12 @@
 # High Level Overview of the Aplication
 
-This module works by fetching data in specific configurable timeframes (default to 1 minute) from all wather sensors and sending it to the Master (ATMEGA328-PU).
-The master then sends this data to the ESP-01S to be able to post this to a server that collects the data for further usage.
-The flash is to store data if the wifi reports failure on connection. The data is then fetched and sent when the wifi resumes working with the correct timeframe that the data was collected.
+This module works by fetching data in specific configurable timeframes (default to 1 minute) from all weather sensors and sends it to the Master (ATMEGA328-PU).
+The master then sends this data to the ESP-01S which posts the data on a web server for further use.
 
 [!IMPORTANT]
 This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose.
 
-# Architecture
+## Architecture of the Module
 This is the architectural diagram of the design:
 ```
 
@@ -42,16 +41,38 @@ This is the architectural diagram of the design:
 
 ```
 
-The data collected will follow this schema after posted to a MySQL database:
+
+## Hardware
+
+The module is composed of:
+
+*Microcontroller:* ATMEGA328P-U
+*Temperature Sensor:* Bosch BME280
+*Pressure Sensor:* Bosch BME280
+*Humidity Sensor:* Bosch BME280
+*Wind Sensor:* Not present on the original project but can be connected on the Wind Sensor GPIO
+*Rain Sensor:* Generic Arduino MH Rain Sensor
+*Wifi Module:* ESP01-S
+*Flash:* Winbound 25Q128FVIQ
+
+The hardware, gerber, fabrication files and assembly pictures are included at: https://oshwlab.com/anardine.ef/weather-station
+
+## About the Webserver
+
+The interfacing is made through POST requests sent after an interrupt from the ATMega to the ESP01-S. This `POST` request is sent to `api.php` with the sensor data to be saved to an external database.
+The credentials and details of the host, port and database should be defined in the `include/config.h`.
+
+The data collected will follow this schema after posted to a MySQL database. You can find the `CREATE TABLE` SQL statement at the `create_table.sql` file.
 
 ```
-| id  |  data_type  |   sensor   | value |  unit   |   time_collected    |     time_added      |
-|-----|-------------|------------|-------|---------|---------------------|---------------------|
-|   0 | temperature | bme280     |  25.3 | celcius | 2025-07-01 00:00:00 | 2025-07-01 00:00:01 |
-|   1 | pressure    | bme280     |  1000 | mmHg    | 2025-07-01 00:00:01 | 2025-07-01 00:00:02 |
-|   2 | rain        | mh_rain    |     1 | -       | 2025-07-01 00:00:01 | 2025-07-01 00:00:02 |
-|   3 | wind        | anemometer |  10.0 | km/h    | 2025-07-01 00:00:01 | 2025-07-01 00:00:02 |
-| ... | ...         | ...        |   ... | ...     | ...                 |                     |
+| id  |  data_type  |   sensor   | value |  unit   |   device     |     time_added      |
+|-----|-------------|------------|-------|---------|--------------|---------------------|
+|   0 | temperature | bme280     |  25.3 | celcius | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   1 | pressure    | bme280     |  1000 | mmHg    | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   2 | rain        | mh_rain    |     1 | -       | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   3 | wind        | anemometer |  10.0 | km/h    | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   4 | humidity    | bme280     |  60.0 | percent | HOME_CENTRAL | 2025-07-01 00:00:00 |
+| ... | ...         | ...        |   ... | ...     | ...          |                     |
 
 ```
 
