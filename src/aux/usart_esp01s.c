@@ -1,275 +1,157 @@
 #include "aux/usart_esp01s.h"
 #include "config.h"
 
-void delay(void) {
-    for (uint32_t i = 0; i < 1000; i++);
-}
-
-void long_delay(void) {
-    for (uint32_t i = 0; i < 10000000; i++);
+// Helper function for safe USART send/receive with retries (void usart_receive version)
+static int safe_usart_transceive(const char *tx, char *rx, size_t rx_size, const char *token, int max_retries, uint16_t delay_ms) {
+    int retries;
+    for (retries = 0; retries < max_retries; retries++) {
+        usart_transmit((uint8_t*)tx, strlen(tx));
+        // Optional delay for ESP01S response stabilization
+        if (delay_ms) {
+            for (volatile uint32_t dly = 0; dly < ((uint32_t)delay_ms) * 800; dly++); // crude software delay ~1ms per iteration at 8Mhz
+        }
+        usart_receive((uint8_t*)rx, rx_size - 1);
+        rx[rx_size-1] = 0; // Always null terminate
+        if (strstr(rx, token) != NULL) {
+            return 0; // success
+        }
+    }
+    return -1;
 }
 
 int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
     char receiveBuffer[100];
-    int retries;
 
+    _delay_ms(1500);    // delay for starting up
     // 1. Test communication
-    for (retries = 0; retries < 3; retries++) {
-        char messageBuffer[] = "AT\n";
-        usart_transmit((uint8_t*)&messageBuffer, strlen(messageBuffer));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL) break;
+    if (safe_usart_transceive("AT\r\n", receiveBuffer, sizeof(receiveBuffer), "OK", 3, 5)) {
+        return -1;
     }
-    if (retries == 3) return -1;
 
     // 2. Set USART configuration: 115200 baud, 8N1, no flow control
-    // AT+UART_DEF=115200,8,1,0,0
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)"AT+UART_DEF=115200,8,1,0,0\n", 28);
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL) break;
+    if (safe_usart_transceive("AT+UART_DEF=115200,8,1,0,0\r\n", receiveBuffer, sizeof(receiveBuffer), "OK", 3, 5)) {
+        return -2;
     }
-    if (retries == 3) return -2;
 
     return 0; // Success
 }
 
 int8_t esp01s_setup(USART_Handler_t *pToUSARTx){
-    
     char receiveBuffer[100];
     char cmdBuffer[100];
 
-    // Defensive logic: retry up to 3 times for each step
-    int retries;
-
     // 1. Test communication
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)"AT\n", 4);
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL) break;
+    if (safe_usart_transceive("AT\r\n", receiveBuffer, sizeof(receiveBuffer), "OK", 3, 100)) {
+        return -1;
     }
-    if (retries == 3) return -1;
 
     // 2. Set WiFi mode to station
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)"AT+CWMODE=1\n", 14);
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL) break;
+    if (safe_usart_transceive("AT+CWMODE=1\r\n", receiveBuffer, sizeof(receiveBuffer), "OK", 3, 100)) {
+        return -2;
     }
-    if (retries == 3) return -2;
-
-    // // 3. Connect to WiFi using config.h definitions. This is commented because the ESP01-S is being configured directly, and not via this code.
-    // for (retries = 0; retries < 3; retries++) {
-    //     snprintf(cmdBuffer, sizeof(cmdBuffer), "AT+CWJAP=\"%s\",\"%s\"\n", WIFI_SSID, WIFI_PWD);
-    //     usart_transmit((uint8_t*)cmdBuffer, strlen(cmdBuffer));
-    //     long_delay();
-    //     usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-    //     if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "WIFI CONNECTED") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) break;
-    //     if (strstr(receiveBuffer, "ALREADY CONNECTED") != NULL) {
-    //         // Already connected, proceed
-    //         break;
-    //     }
-    //}
-    //if (retries == 3 && strstr(receiveBuffer, "ALREADY CONNECTED") == NULL) return -3;
 
     // 4. Set single connection mode (optional, but recommended)
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)"AT+CIPMUX=0\n", 13);
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL)
-            break;
+    if (safe_usart_transceive("AT+CIPMUX=0\r\n", receiveBuffer, sizeof(receiveBuffer), "OK", 3, 100)) {
+        return -4;
     }
-    if (retries == 3) return -4;
 
     // 5. Open TCP connection (AT+CIPSTART)
     snprintf(cmdBuffer, sizeof(cmdBuffer), "AT+CIPSTART=\"TCP\",\"%s\",80\r\n", WEB_HOST);
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)cmdBuffer, strlen(cmdBuffer));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "OK") != NULL || strstr(receiveBuffer, "ALREADY CONNECTED") != NULL)
-            break;
+    // Accept "OK" or "ALREADY CONNECTED"
+    if (safe_usart_transceive(cmdBuffer, receiveBuffer, sizeof(receiveBuffer), "OK", 3, 100) &&
+        safe_usart_transceive(cmdBuffer, receiveBuffer, sizeof(receiveBuffer), "ALREADY CONNECTED", 1, 100)) {
+        return -5;
     }
-    if (retries == 3) return -5;
 
     return 0; // Success
 }
 
 int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, float temperature) {
-    static char dataToBeTransmitted[100];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
-    // Format data as HTTP POST form data
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted), 
-        "type=temperature&sensor=bme280&value=%.1f&unit=celsius&device=HOME_EXT1", temperature);
-    
-    // Create HTTP POST request
-    snprintf(httpRequest, sizeof(httpRequest), 
-        "POST /api.php HTTP/1.1\r\n"
+    snprintf(httpRequest, sizeof(httpRequest),
+        "GET /api.php?type=temperature&sensor=bme280&value=%.1f&unit=celsius&device=HOME_EXT1 HTTP/1.1\r\n"
         "Host: %s\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Content-Length: %d\r\n"
         "Connection: close\r\n"
-        "\r\n"
-        "%s", WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+        "\r\n", temperature, WEB_HOST);
 
-    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", (int)strlen(httpRequest));
 
-    int retries;
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        if(strstr(receiveBuffer, ">") != NULL)
-            break;
+    // Wait for prompt '>'
+    if (safe_usart_transceive(sendDataAT, receiveBuffer, sizeof(receiveBuffer), ">", 3, 100)) {
+        return 1;
     }
-    if (retries == 3) return 1;
-
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, sizeof(receiveBuffer));
-        if (strstr(receiveBuffer, "SEND OK") != NULL)
-            return 0;
+    // Send request and wait for SEND OK
+    if (safe_usart_transceive(httpRequest, receiveBuffer, sizeof(receiveBuffer), "SEND OK", 3, 100)) {
+        return 2;
     }
-    return 2;
+    return 0;
 }
 
 int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, float pressure) {
-    char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
-    // Format data as HTTP POST form data
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted),
-        "type=pressure&sensor=bme280&value=%.2f&unit=hpa&device=HOME_EXT1", pressure);
-    
-    // Create HTTP POST request
-    snprintf(httpRequest, strlen(httpRequest),
-        "POST /api.php HTTP/1.1\r\n"
+    snprintf(httpRequest, sizeof(httpRequest),
+        "GET /api.php?type=pressure&sensor=bme280&value=%.2f&unit=hpa&device=HOME_EXT1 HTTP/1.1\r\n"
         "Host: %s\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Content-Length: %d\r\n"
-        "\r\n"
-        "%s", 
-        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+        "Connection: close\r\n"
+        "\r\n", pressure, WEB_HOST);
 
-    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", (int)strlen(httpRequest));
 
-    int retries;
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if(strstr(receiveBuffer, ">") != NULL) break;
+    if (safe_usart_transceive(sendDataAT, receiveBuffer, sizeof(receiveBuffer), ">", 3, 100)) {
+        return -1;
     }
-    if (retries == 3) return -1;
-
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
+    if (safe_usart_transceive(httpRequest, receiveBuffer, sizeof(receiveBuffer), "SEND OK", 3, 100)) {
+        return -2;
     }
-    return -2;
+    return 0;
 }
 
 int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, float humidity) {
-    char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
-    // Format data as HTTP POST form data (fix: was "pressure" should be "humidity")
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted),
-        "type=humidity&sensor=bme280&value=%.2f&unit=percent&device=HOME_EXT1", humidity);
-    
-    // Create HTTP POST request
-    snprintf(httpRequest, strlen(httpRequest),
-        "POST /api.php HTTP/1.1\r\n"
+    snprintf(httpRequest, sizeof(httpRequest),
+        "GET /api.php?type=humidity&sensor=bme280&value=%.2f&unit=percent&device=HOME_EXT1 HTTP/1.1\r\n"
         "Host: %s\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Content-Length: %d\r\n"
-        "\r\n"
-        "%s", 
-        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+        "Connection: close\r\n"
+        "\r\n", humidity, WEB_HOST);
 
-    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", (int)strlen(httpRequest));
 
-    int retries;
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if(strstr(receiveBuffer, ">") != NULL) break;
+    if (safe_usart_transceive(sendDataAT, receiveBuffer, sizeof(receiveBuffer), ">", 3, 100)) {
+        return -1;
     }
-    if (retries == 3) return -1;
-
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
+    if (safe_usart_transceive(httpRequest, receiveBuffer, sizeof(receiveBuffer), "SEND OK", 3, 100)) {
+        return -2;
     }
-    return -2;
+    return 0;
 }
 
 int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
-    char dataToBeTransmitted[150];
     char httpRequest[300];
     char sendDataAT[100];
     char receiveBuffer[100];
 
-    // Format data as HTTP POST form data
-    snprintf(dataToBeTransmitted, sizeof(dataToBeTransmitted),
-        "type=rain&sensor=mh_rain&value=%u&unit=boolean&device=HOME_EXT1", isRaining);
-    
-    // Create HTTP POST request
-    snprintf(httpRequest, strlen(httpRequest),
-        "POST /api.php HTTP/1.1\r\n"
+    snprintf(httpRequest, sizeof(httpRequest),
+        "GET /api.php?type=rain&sensor=mh_rain&value=%u&unit=boolean&device=HOME_EXT1 HTTP/1.1\r\n"
         "Host: %s\r\n"
-        "Content-Type: application/x-www-form-urlencoded\r\n"
-        "Content-Length: %d\r\n"
-        "\r\n"
-        "%s", 
-        WEB_HOST, strlen(dataToBeTransmitted), dataToBeTransmitted);
+        "Connection: close\r\n"
+        "\r\n", isRaining, WEB_HOST);
 
-    snprintf(sendDataAT, strlen(sendDataAT), "AT+CIPSEND=%d\r\n", strlen(httpRequest));
+    snprintf(sendDataAT, sizeof(sendDataAT), "AT+CIPSEND=%d\r\n", (int)strlen(httpRequest));
 
-    int retries;
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)sendDataAT, strlen(sendDataAT));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if(strstr(receiveBuffer, ">") != NULL) break;
+    if (safe_usart_transceive(sendDataAT, receiveBuffer, sizeof(receiveBuffer), ">", 3, 100)) {
+        return -1;
     }
-    if (retries == 3) return -1;
-
-    for (retries = 0; retries < 3; retries++) {
-        usart_transmit((uint8_t*)httpRequest, strlen(httpRequest));
-        delay();
-        usart_receive((uint8_t*)receiveBuffer, strlen(receiveBuffer));
-        receiveBuffer[sizeof(receiveBuffer)-1] = 0; // Null-terminate as a precaution
-        if (strstr(receiveBuffer, "SEND OK") != NULL) return 0;
+    if (safe_usart_transceive(httpRequest, receiveBuffer, sizeof(receiveBuffer), "SEND OK", 3, 100)) {
+        return -2;
     }
-    return -2;
+    return 0;
 }

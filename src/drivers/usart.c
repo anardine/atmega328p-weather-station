@@ -11,7 +11,7 @@ void usart_init(USART_Handler_t *USARTHandler) {
         ubbrn = ((F_CPU / (16 * USARTHandler->USARTConfig.baudRate)) - 1);
     } else {
         // Asynchronous Double Speed mode (U2Xn = 1)
-        USARTHandler->pUSARTx->ucsra |= USART_U2X; // Enable double speed
+        UCSR0A |= USART_U2X; // Enable double speed
         ubbrn = (F_CPU / (8 * USARTHandler->USARTConfig.baudRate)) - 1;
     }
 
