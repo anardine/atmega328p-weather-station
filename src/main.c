@@ -29,11 +29,11 @@
 #define USE_FLASH   DISABLE
 
 //definition of global variables
- volatile uint8_t global_timer_fetch = 0;
- //volatile uint32_t global_memory_page_tracker = 0;
- TIMER_Handler_t *pToTimer1;
- SPI_Handler_t *pToSPI1;
- TWI_handler_t *pToTWI1;
+volatile uint8_t global_timer_fetch = 0;
+//volatile uint32_t global_memory_page_tracker = 0;
+TIMER_Handler_t *pToTimer1;
+SPI_Handler_t *pToSPI1;
+TWI_handler_t *pToTWI1;
 USART_Handler_t *pToUSART0;
 GPIO_handler_t *pToGPIOC2;
 GPIO_handler_t *pToGPIOC1;
@@ -84,10 +84,8 @@ ISR(TIMER1_OVF_vect) {
 
 #endif
 
-#if (!DEBUG_MODE)
         //setup conn to the ESP01 module to send data
         esp01s_setup(pToUSART0);
-#endif
 
 #if USE_FLASH
         send the data to the server via ESP01-S
@@ -130,10 +128,8 @@ int main(void) {
     pToUSART0->USARTConfig.doubleSpeed = 0;
     pToUSART0->USARTConfig.parityMode = 0;
 
-#if DEBUG_MODE
     // enabling USART for debugging through FTDI
     usart_init(pToUSART0);
-#endif
 
     /* ----------- END OF USART INITIALIZATION ----------- */
 
@@ -178,11 +174,9 @@ int main(void) {
 /* ----------- END OF FLASH INITIALIZATION ----------- */
 
 /* ----------- ESP INITIALIZATION ----------- */
-#if (!DEBUG_MODE)
 
     esp01s_init(pToUSART0);
 
-#endif
 /* ----------- END OF ESP INITIALIZATION ----------- */
 
 /* ----------- GPIO RAIN INITIALIZATION ----------- */
