@@ -7,7 +7,6 @@
 
 
 int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
-    char receiveBuffer[ESP_RESP_MEDIUM_LEN];
     char transmitterBuffer[ESP_RESP_BIG_LEN];
 
     _delay_ms(5000);
@@ -36,7 +35,6 @@ int8_t esp01s_init(USART_Handler_t *pToUSARTx) {
 int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, float temperature) {
     char httpRequest[ESP_RESP_BIG_LEN];
     char sendDataAT[ESP_RESP_BIG_LEN];
-    char receiveBuffer[ESP_RESP_BIG_LEN];
     char transmitterBuffer[ESP_RESP_BIG_LEN];
 
 
@@ -65,7 +63,6 @@ int8_t esp01s_send_temperature(USART_Handler_t *pToUSARTx, float temperature) {
 int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, float pressure) {
     char httpRequest[ESP_RESP_BIG_LEN];
     char sendDataAT[ESP_RESP_BIG_LEN];
-    char receiveBuffer[ESP_RESP_BIG_LEN];
     char transmitterBuffer[ESP_RESP_BIG_LEN];
 
 
@@ -94,7 +91,6 @@ int8_t esp01s_send_pressure(USART_Handler_t *pToUSARTx, float pressure) {
 int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, float humidity) {
     char httpRequest[ESP_RESP_BIG_LEN];
     char sendDataAT[ESP_RESP_BIG_LEN];
-    char receiveBuffer[ESP_RESP_BIG_LEN];
     char transmitterBuffer[ESP_RESP_BIG_LEN];
 
 
@@ -123,7 +119,6 @@ int8_t esp01s_send_humidity(USART_Handler_t *pToUSARTx, float humidity) {
 int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
     char httpRequest[ESP_RESP_BIG_LEN];
     char sendDataAT[ESP_RESP_BIG_LEN];
-    char receiveBuffer[ESP_RESP_BIG_LEN];
     char transmitterBuffer[ESP_RESP_BIG_LEN];
 
 
