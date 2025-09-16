@@ -1,4 +1,7 @@
-# High Level Overview of the Aplication
+# ☀️🌦️ ATMEGA328P Weather Station ⛈️❄️
+Fetch data directly from Local Weather Sensors and send to a Webserver! 
+
+## High Level Overview of the Aplication
 
 This module works by fetching data in specific configurable timeframes (default to 1 minute) from all weather sensors and sends it to the Master (ATMEGA328-PU).
 The master then sends this data to the ESP-01S which posts the data on a web server for further use.
