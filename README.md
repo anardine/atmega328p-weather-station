@@ -15,7 +15,7 @@ This is the architectural diagram of the design:
                                                                |              |
                                                         +----->+    Flash     |
  +5V Line                                               |      |              |
-    +                        ATMEGA328P-U              |      +--------------+
+    +                        ATMEGA328P-U               |      +--------------+
     |      +-----------+     +--------------------+     |
     |      |           |     |                    |     |      BME280
     +----->+ Power Reg +---->+ 3V3           SPI1 +<----+      +--------------+
@@ -59,7 +59,7 @@ The hardware, gerber, fabrication files and assembly pictures are included at: h
 
 ## About the Webserver
 
-The interfacing is made through POST requests sent after an interrupt from the ATMega to the ESP01-S. This `POST` request is sent to `api.php` with the sensor data to be saved to an external database.
+The interfacing is made through GET requests sent after an interrupt from the ATMega to the ESP01-S. This `GET` request is sent to `api.php` with the sensor data to be saved to an external database.
 The credentials and details of the host, port and database should be defined in the `include/config.h`.
 
 The data collected will follow this schema after posted to a MySQL database. You can find the `CREATE TABLE` SQL statement at the `create_table.sql` file.
@@ -68,7 +68,7 @@ The data collected will follow this schema after posted to a MySQL database. You
 | id  |  data_type  |   sensor   | value |  unit   |   device     |     time_added      |
 |-----|-------------|------------|-------|---------|--------------|---------------------|
 |   0 | temperature | bme280     |  25.3 | celcius | HOME_CENTRAL | 2025-07-01 00:00:00 |
-|   1 | pressure    | bme280     |  1000 | mmHg    | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   1 | pressure    | bme280     |  1000 | mBar    | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   2 | rain        | mh_rain    |     1 | -       | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   3 | wind        | anemometer |  10.0 | km/h    | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   4 | humidity    | bme280     |  60.0 | percent | HOME_CENTRAL | 2025-07-01 00:00:00 |
