@@ -30,14 +30,18 @@
 
 //definition of global variables
 volatile uint8_t global_timer_fetch = 0;
-//volatile uint32_t global_memory_page_tracker = 0;
-TIMER_Handler_t* pToTimer1;
+
+#if USE_FLASH
+volatile uint32_t global_memory_page_tracker = 0;
 SPI_Handler_t* pToSPI1;
+uint8_t* pGlobalMemTracker;
+#endif
+
+TIMER_Handler_t* pToTimer1;
 TWI_handler_t* pToTWI1;
 USART_Handler_t* pToUSART0;
 GPIO_handler_t* pToGPIOC2;
 GPIO_handler_t* pToGPIOC1;
-uint8_t* pGlobalMemTracker;
 
 /* ----------------------- BEGINING OF INTERRUPT ROUTINES ----------------------- */
 
@@ -118,7 +122,6 @@ ISR(TIMER1_OVF_vect) {
 
 int main(void) {
       /* ----------- USART INITIALIZATION ----------- */
-      pToUSART0->pUSARTx = USART0;
       pToUSART0->USARTConfig.baudRate = 9600;
       pToUSART0->USARTConfig.uartByteSize = 8;
       pToUSART0->USARTConfig.stopBitQuantity = 1;
@@ -177,20 +180,18 @@ int main(void) {
       /* ----------- END OF ESP INITIALIZATION ----------- */
 
       /* ----------- GPIO RAIN INITIALIZATION ----------- */
-      pToGPIOC2->pToGPIOx = GPIOC;
       pToGPIOC2->gpioConfig.inputOrOutput = GPIO_INPUT;
       pToGPIOC2->gpioConfig.pinNumber = 2;
 
-      gpio_init(pToGPIOC2);
+      gpioC_init(pToGPIOC2);
 
       /* ----------- END OF GPIO RAIN INITIALIZATION ----------- */
 
       /* ----------- GPIO WARNING INITIALIZATION ----------- */
-      pToGPIOC1->pToGPIOx = GPIOC;
       pToGPIOC1->gpioConfig.inputOrOutput = GPIO_OUTPUT;
       pToGPIOC1->gpioConfig.pinNumber = 1;
 
-      gpio_init(pToGPIOC1);
+      gpioC_init(pToGPIOC1);
 
       /* ----------- END OF GPIO WARNING INITIALIZATION ----------- */
 #if DEBUG_MODE
