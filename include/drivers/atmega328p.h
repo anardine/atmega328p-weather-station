@@ -5,75 +5,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-// Configuration Structures
-// VALIDATED
-typedef struct {
-    uint8_t pin;    // Pin Input Register address or value
-    uint8_t ddr;    // Data Direction Register address or value
-    uint8_t port;   // Port Data Register address or value
-} GPIO_TypeDef;
-
-//NOT VALIDATED
-typedef struct {
-    uint8_t tccra; // Timer/Counter Control Register A
-    uint8_t tccrb; // Timer/Counter Control Register B
-    uint8_t tcnt;  // Timer/Counter Value
-    uint8_t ocra;  // Output Compare Register A
-    uint8_t ocrb;  // Output Compare Register B
-    uint8_t timsk; // Timer Interrupt Mask Register
-    uint8_t tifr;  // Timer Interrupt Flag Register
-} TIMER8_TypeDef;
-
-//NOT VALIDATED
-typedef struct {
-    uint8_t tccra;     // Timer/Counter Control Register A
-    uint8_t tccrb;     // Timer/Counter Control Register B
-    uint8_t tccrc;     // Timer/Counter Control Register C
-    uint8_t reserved;  // Reserved
-    uint16_t tcnt;     // Timer/Counter Value (16-bit)
-    uint16_t icr;      // Input Capture Register (16-bit)
-    uint16_t ocra;     // Output Compare Register A (16-bit)
-    uint16_t ocrb;     // Output Compare Register B (16-bit)
-    uint8_t timsk;     // Timer Interrupt Mask Register
-    uint8_t tifr;      // Timer Interrupt Flag Register
-} TIMER16_TypeDef;
-
-//NOT VALIDATED
-typedef struct {
-    uint8_t admux;     // ADC Multiplexer Selection Register
-    uint8_t adcsra;    // ADC Control and Status Register A
-    uint8_t adcsrb;    // ADC Control and Status Register B
-    uint16_t adc;      // ADC Data Register (16-bit)
-} ADC_TypeDef;
-
-//VALIDATED
-typedef struct {
-    uint8_t ucsra;     // USART Control and Status Register A
-    uint8_t ucsrb;     // USART Control and Status Register B
-    uint8_t ucsrc;     // USART Control and Status Register C
-    uint8_t reserved;  // reserved bit
-    uint8_t ubrrl;     // USART Baud Rate Register Low
-    uint8_t ubrrh;     // USART Baud Rate Register High
-    uint8_t udr;       // USART I/O Data Register
-} USART_TypeDef;
-
-//VALIDATED
-typedef struct {
-    uint8_t spcr;      // SPI Control Register
-    uint8_t spsr;      // SPI Status Register
-    uint8_t spdr;      // SPI Data Register
-} SPI_TypeDef;
-
-//VALIDATED
-typedef struct {
-    uint8_t twbr;      // TWI Bit Rate Register
-    uint8_t twsr;      // TWI Status Register
-    uint8_t twar;      // TWI (Slave) Address Register
-    uint8_t twdr;      // TWI Data Register
-    uint8_t twcr;      // TWI Control Register
-    uint8_t twamr;     // TWI (Slave) Address Mask Register
-} TWI_TypeDef;
-
 #define HIGH            1
 #define LOW             0
 
@@ -102,31 +33,11 @@ typedef struct {
 
 #define TWI_BASE     0xB8   // Base address for TWI (I2C) registers
 
-// GPIO pointers (cast base addresses to GPIO_TypeDef pointers)
-#define GPIOB   ((GPIO_TypeDef*)(GPIOB_BASE))   // Pointer to GPIO Port B registers
-#define GPIOC   ((GPIO_TypeDef*)(GPIOC_BASE))   // Pointer to GPIO Port C registers
-#define GPIOD   ((GPIO_TypeDef*)(GPIOD_BASE))   // Pointer to GPIO Port D registers
-
 #define GPIO_INPUT          0
 #define GPIO_OUTPUT         1
 
 #define GPIO_PULL_UP        1
 #define GPIO_PULL_DOWN      0
-
-// Timer pointers (cast base addresses to timer struct pointers)
-#define TIMER0  ((TIMER8_TypeDef*)(TIMER0_BASE))    // Pointer to Timer/Counter0 registers (8-bit)
-#define TIMER1  ((TIMER16_TypeDef*)(TIMER1_BASE))   // Pointer to Timer/Counter1 registers (16-bit)
-#define TIMER2  ((TIMER8_TypeDef*)(TIMER2_BASE))    // Pointer to Timer/Counter2 registers (8-bit)
-
-// ADC pointer (cast base address to ADC_TypeDef pointer)
-#define ADC1    ((ADC_TypeDef*)(ADC_BASE))          // Pointer to ADC registers
-
-// USART pointer (cast base address to USART_TypeDef pointer)
-#define USART0  ((USART_TypeDef*)(USART0_BASE))     // Pointer to USART0 registers
-
-// SPI pointer (cast base address to SPI_TypeDef pointer)
-#define SPI1    ((SPI_TypeDef*)(SPI_BASE))          // Pointer to SPI registers
-
 
 // SPI configuration macros for ATmega328P
 #define SPI_MODE_MASTER      1
@@ -170,9 +81,6 @@ typedef struct {
 #define SPI_SPIF  7  // SPI Interrupt Flag
 #define SPI_WCOL  6  // Write Collision Flag
 #define SPI_SPI2X 0  // Double SPI Speed Bit
-
-// TWI pointer (cast base address to TWI_TypeDef pointer)
-#define TWI1    ((TWI_TypeDef*)(TWI_BASE))          // Pointer to TWI (I2C) registers
 
 // Bit positions for TWI registers (ATmega328P)
 #define TWI_ENABLE_ACK  (1 << 6)   // TWEA
