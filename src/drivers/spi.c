@@ -1,3 +1,5 @@
+#if USE_FLASH
+
 #include "drivers/spi.h"
 #include <stddef.h>
 
@@ -55,7 +57,7 @@ void spi_init(SPI_Handler_t *spiHandler)
         SPCR = spcr;
     
     // Configure SPSR (SPI Status Register) for double speed if needed
-    uint8_t spsr = spiHandler->pToSPIx->spsr & 0xFE; // Clear SPI2X bit
+    uint8_t spsr = SPSR & 0xFE; // Clear SPI2X bit
     if (spiHandler->SPIConfig.doubleSpeed == SPI_CLOCK_DOUBLE) {
         spsr |= (1 << SPI_SPI2X);
     }
@@ -107,3 +109,5 @@ uint8_t spi_read(SPI_Handler_t *spiHandler)
     uint8_t dummyData = 0xFF;
     return spi_write(spiHandler, &dummyData, 1);
 }
+
+#endif

@@ -11,7 +11,6 @@ typedef struct {
 
 // Timer handler structure
 typedef struct {
-    TIMER16_TypeDef *pTIMERx;   // Pointer to timer peripheral (Timer1)
     TIMER_config_t config;
 } TIMER_Handler_t;
 

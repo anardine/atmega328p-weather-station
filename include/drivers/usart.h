@@ -17,7 +17,6 @@ typedef struct {
 
 typedef struct
 {
-    USART_TypeDef *pUSARTx;
     UART_config_t USARTConfig;
 } USART_Handler_t;
 

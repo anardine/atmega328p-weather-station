@@ -11,7 +11,6 @@ typedef struct {
 } TWI_config_t;
 
 typedef struct {
-    TWI_TypeDef *pTWIx;      // Pointer to TWI peripheral (if defined in atmega328p.h)
     TWI_config_t TWIConfig;  // TWI configuration structure
 } TWI_handler_t;
 

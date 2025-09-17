@@ -13,7 +13,6 @@ typedef struct
 
 // GPIO Handler structure
 typedef struct {
-    GPIO_TypeDef *pToGPIOx;
     GPIO_config_t gpioConfig;
 } GPIO_handler_t;
 
@@ -28,7 +27,7 @@ typedef struct {
  * @param gpio Pointer to a GPIO_handler_t structure that contains
  *             the configuration information for the specified GPIO pin.
  */
-void gpio_init(GPIO_handler_t *gpio);
+void gpioC_init(GPIO_handler_t *gpioC);
 
 /**
  * @brief Writes a logic state to the specified GPIO pin.
@@ -41,7 +40,7 @@ void gpio_init(GPIO_handler_t *gpio);
  *              the GPIO pin to write to.
  * @param state Logic state to write to the pin (0 for low, 1 for high).
  */
-void gpio_write(GPIO_handler_t *gpio, uint8_t state);
+void gpioC_write(GPIO_handler_t *gpioC, uint8_t state);
 
 /**
  * @brief Reads the current logic state from the specified GPIO pin.
@@ -53,6 +52,6 @@ void gpio_write(GPIO_handler_t *gpio, uint8_t state);
  *             the GPIO pin to read from.
  * @return uint8_t The current logic state of the pin (0 for low, 1 for high).
  */
-uint8_t gpio_read(GPIO_handler_t *gpio);
+uint8_t gpioC_read(GPIO_handler_t *gpioC);
 
 #endif // GPIO_H

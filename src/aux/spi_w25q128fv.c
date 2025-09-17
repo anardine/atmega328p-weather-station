@@ -1,4 +1,4 @@
-
+#if USE_FLASH
 #include "aux/spi_w25q128fv.h"
 
 void wait_for_clearance(SPI_Handler_t *pToSPIx) {
@@ -27,8 +27,8 @@ uint8_t check_write_clearance(SPI_Handler_t *pToSPIx) {
 uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataRetreived) {
     
     // Set CS low to start communication
-    GPIOB->ddr |= (1 << 2);
-    GPIOB->port &= ~(1 << 2);
+    DDRB |= (1 << 2);
+    PORTB &= ~(1 << 2);
 
     wait_for_clearance(pToSPIx);
     uint8_t address = 0x03;
@@ -44,7 +44,7 @@ uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t 
     // Wait for read to finish
     wait_for_clearance(pToSPIx);
 
-    GPIOB->port |= (1 << 2); // set CS to high to stop communication
+    PORTB |= (1 << 2); // set CS to high to stop communication
 
     return 0; 
 
@@ -54,8 +54,8 @@ uint8_t flash_read_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t 
 void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t *pToDataToWrite) {
 
     // set CC to low on pin PB2 by setting the pin as an output pin
-    GPIOB->ddr |= (1 << 2);
-    GPIOB->port &= ~(1 << 2);
+    DDRB |= (1 << 2);
+    DDRB &= ~(1 << 2);
 
     wait_for_clearance(pToSPIx); // device ready
 
@@ -66,8 +66,8 @@ void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t le
     } 
 
        // set CS to high and low again given the necessity for the W25Q128FV to process
-        GPIOB->port ^= (1 << 2);
-        GPIOB->port ^= (1 << 2);
+        DDRB ^= (1 << 2);
+        DDRB ^= (1 << 2);
 
         uint8_t address = 0x02;
         // Page Program command (0x02)
@@ -81,14 +81,14 @@ void flash_write_data(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t le
         // Wait for write to finish
         wait_for_clearance(pToSPIx);
 
-    GPIOB->port |= (1 << 2); // set CS to high to stop communication
+    DDRB |= (1 << 2); // set CS to high to stop communication
 }
 
 void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length, uint8_t eraseMode) {
 
     // set CC to low on pin PB2 by setting the pin as an output pin
-    GPIOB->ddr |= (1 << 2);
-    GPIOB->port &= ~(1 << 2);
+    DDRB |= (1 << 2);
+    DDRB &= ~(1 << 2);
 
     wait_for_clearance(pToSPIx); // device ready
 
@@ -98,8 +98,8 @@ void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length,
 
     }
     // set CS to high and low again given the necessity for the W25Q128FV to process
-    GPIOB->port ^= (1 << 2);
-    GPIOB->port ^= (1 << 2);
+    PORTB ^= (1 << 2);
+    PORTB ^= (1 << 2);
 
     // Erase logic: Use Sector Erase (0x20) or Block Erase (0xD8) or Chip Erase (0xC7)
     // Here, we'll use Sector Erase (0x20) for the address provided
@@ -109,5 +109,6 @@ void flash_erase(SPI_Handler_t *pToSPIx, uint8_t *blockAddress, uint32_t length,
     spi_write(pToSPIx, &eraseMode, 1); // Send erase command
     //spi_write(pToSPIx, blockAddress, 3); // Send 3-byte address only for sector or block erase
 
-    GPIOB->port |= (1 << 2); // set CS to high. Setting CS high is a must for completing the erasing cycle.
+    PORTB |= (1 << 2); // set CS to high. Setting CS high is a must for completing the erasing cycle.
 }
+#endif
