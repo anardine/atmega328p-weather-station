@@ -1,7 +1,8 @@
 # ☀️🌦️ ATMEGA328P Weather Station ⛈️❄️
-Fetch data directly from Local Weather Sensors and send to a Webserver! 
+Fetch data directly from Local Weather Sensors and send to a Webserver and Database in specific timeframes. Use the way you like after.
 
-## High Level Overview of the Aplication
+## Project Details
+### High Level Overview of the Aplication
 
 This module works by fetching data in specific configurable timeframes (default to 1 minute) from all weather sensors and sends it to the Master (ATMEGA328-PU).
 The master then sends this data to the ESP-01S which posts the data on a web server for further use.
@@ -9,17 +10,17 @@ The master then sends this data to the ESP-01S which posts the data on a web ser
 [!IMPORTANT]
 This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose.
 
-## Architecture of the Module
+### Architecture of the Module
 This is the architectural diagram of the design:
 ```
 
                                                                25Q128FVIQ
-                                                               +--------------+
-                                                               |              |
-                                                        +----->+    Flash     |
- +5V Line                                               |      |              |
-    +                        ATMEGA328P-U               |      +--------------+
-    |      +-----------+     +--------------------+     |
+                                                               +----------------+
+                                                               |     Flash      |
+                                                        +----->+ (Disabled by   |
+ +5V Line                                               |      |    Default)    |
+    +                        ATMEGA328P-U               |      +----------------+
+    |      +-----------+     +--------------------+     |      
     |      |           |     |                    |     |      BME280
     +----->+ Power Reg +---->+ 3V3           SPI1 +<----+      +--------------+
            |           |     |                    |            |              |
@@ -45,7 +46,7 @@ This is the architectural diagram of the design:
 ```
 
 
-## Hardware
+### Hardware
 
 The module is composed of:
 
@@ -60,7 +61,7 @@ The module is composed of:
 
 The hardware, gerber, fabrication files and assembly pictures are included at: https://oshwlab.com/anardine.ef/weather-station
 
-## About the Webserver
+### About the Webserver
 
 The interfacing is made through GET requests sent after an interrupt from the ATMega to the ESP01-S. This `GET` request is sent to `api.php` with the sensor data to be saved to an external database.
 The credentials and details of the host, port and database should be defined in the `include/config.h`.
@@ -79,3 +80,16 @@ The data collected will follow this schema after posted to a MySQL database. You
 
 ```
 
+## Instructions to Use this Successfully
+1. **Do not solder** the flash, ATMEGA328P and sensors to the board directly. There are some bugs when uploading the code using an USBasp that crashes the system. Please upload the code to the board with the sensors removed.
+2. Please **do not** yet use the `USE_FLASH` on `main.c` as this is still under implementation.
+3. This runs using the PlatformIO Enviroment. Please install the PlatformIO plugin on your IDE and open this project as a PlatformIO project. 
+4. Most of the details that the user has to provide are defined at `include/config.h`. Please set define there your Wifi SSID, password and the domain this module will send data to. You can also give this board a name, which will be the name saved as the `device` on your database.
+5. Create a database on your webserver (MySQL prefenciably and run the create table statement described at `create_table.sql`)
+6. Insert all the database details that you created at `php_api/api.php`
+7. Connect the USBasp to the SPI interface of the board
+8. Run the `Set Fuses` from PlatformIO. This will set the necessary fuses for to use the 8MHz clock.
+9. Run the `Upload` from PlatformIO. This should upload the code to the board.
+10. Insert all sensors
+11. Power the board
+12. Check if the data is being collected within the timebox defined
