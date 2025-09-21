@@ -23,8 +23,8 @@
 #include "aux/usart_esp01s.h"
 #include "aux/gpio_mhrain.h"
 #include "aux/gpio_warning.h"
-#include "config.h"
 
+// FEATURES - Enable this if you want to use advanced features such as debugging and flash for storage when Wifi is not working correctly. By default, using flash is disabled
 #define DEBUG_MODE  DISABLE
 #define USE_FLASH   DISABLE
 
@@ -59,7 +59,7 @@ ISR(TIMER1_OVF_vect) {
             temperature = bme280_readTemperature(0); // in °C
             pressure = bme280_readPressure(0) / 100.0; // in mBar
             humidity = bme280_readHumidity(0); // in %
-            isRaining = (!(read_rain(pToGPIOC2))); // negated because for MH sensor 0 is raining. 0 for not raining, 1 for raining
+            isRaining = (!(read_rain(pToGPIOC2))); // negated because for MH sensor 0 is raining. 0 for not raining, 1 for raining. Check if wires of sensor are inverted if this is reporting differently or feel free to use isRaining = (read_rain(pToGPIOC2)); instead
 
 #if DEBUG_MODE
             char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
