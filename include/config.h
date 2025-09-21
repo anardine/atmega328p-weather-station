@@ -2,13 +2,8 @@
 #define CONFIG_H
 
 #define WIFI_SSID           "LALALALALA"
-#define WIFI_PWD            "LALALLALALA"
+#define WIFI_PWD            "LALALALA"
 
-#define WEB_HOST            "LALALLA.LALALA.COM/LALALA"
-#define SCHEMA              "LALALALLA"
-#define DB                  "lalalala_lalalal"
-
-#define DB_MASTER           "lalalala_lalala"
-#define DB_PWD              "lalalallalala"
+#define WEB_HOST            "LALALALA.com"
 
 #endif // CONFIG_H
