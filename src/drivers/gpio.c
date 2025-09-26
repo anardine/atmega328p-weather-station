@@ -34,15 +34,7 @@ void gpioC_write(GPIO_handler_t *gpioC, uint8_t state) {
     
 
 
-uint8_t gpioC_read(GPIO_handler_t *gpioC) {
-    // Check if the pin is configured as input
-    if (gpioC->gpioConfig.inputOrOutput == GPIO_INPUT) {
-        // Read the pin value from the PIN register
-        uint8_t value = (PINC >> gpioC->gpioConfig.pinNumber) & 0x01;
-        return value;
-    } else {
-        printf("This port and pin is configured as an output.\n");
-        // Optionally, still return the pin state:
-        return (PINC >> gpioC->gpioConfig.pinNumber) & 0x01;
-    }
+
+uint8_t gpio_read(GPIO_handler_t *gpioc) {
+        return ((PINC >> gpioc->gpioConfig.pinNumber) & 0x01);
 }

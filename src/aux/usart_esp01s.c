@@ -128,7 +128,9 @@ int8_t esp01s_send_rain(USART_Handler_t *pToUSARTx, uint8_t isRaining) {
     _delay_ms(10000);
 
     snprintf(httpRequest, sizeof(httpRequest),
-        "GET /api.php?type=rain&sensor=mh_rain&value=%u&unit=bool&device=%s HTTP/1.1\r\n"
+
+        "GET /api.php?type=rain&sensor=mh_rain&value=%d&unit=bool&device=HOME_EXT1 HTTP/1.1\r\n"
+
         "Host: %s\r\n"
         "Connection: close\r\n"
         "\r\n", isRaining,BOARD_NAME, WEB_HOST);

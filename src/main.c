@@ -48,7 +48,7 @@ GPIO_handler_t* pToGPIOC1;
 //Timer interrupt routine
 ISR(TIMER1_OVF_vect) {
 
-      if (global_timer_fetch == 9) // around 60 seconds
+      if (global_timer_fetch == 16) // around 120 seconds
       {
 
             volatile float temperature = 0;
@@ -59,7 +59,8 @@ ISR(TIMER1_OVF_vect) {
             temperature = bme280_readTemperature(0); // in °C
             pressure = bme280_readPressure(0) / 100.0; // in mBar
             humidity = bme280_readHumidity(0); // in %
-            isRaining = (!(read_rain(pToGPIOC2))); // negated because for MH sensor 0 is raining. 0 for not raining, 1 for raining. Check if wires of sensor are inverted if this is reporting differently or feel free to use isRaining = (read_rain(pToGPIOC2)); instead
+
+            isRaining = (!read_rain()); // negated because for the MH sensor, Low(0) is raining.
 
 #if DEBUG_MODE
             char TimerComp[] = "Global Timer reached one minute. Saving Weather Data\n";
