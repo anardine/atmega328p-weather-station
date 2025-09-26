@@ -48,27 +48,25 @@ void usart_init(USART_Handler_t *USARTHandler) {
     UCSR0C = ucsrc;
 
     // Enable transmitter and receiver
-    UCSR0B |= (1 << 3) | (1 << 4); // TXENn and RXENn
+    UCSR0B = (1<<RXEN0)|(1<<TXEN0); // TXENn and RXENn
     // USART is now configured and ready for use
 }
 
 
-void usart_transmit(uint8_t *data, uint16_t length)
-{
+void usart_transmit(uint8_t *data, uint16_t length) {
     // Transmit 'length' bytes from the data buffer
     // Wait for transmit buffer to be empty (UDREn bit in UCSRA)
-    while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
+    while ( !( UCSR0A & (1<<UDRE0)) ); // Do nothing until UDR is ready
     for (uint16_t i = 0; i < length; i++) {
         // Put data into buffer, sends the byte
         UDR0 = data[i];
-        while (( UCSR0A & (1<<UDRE0)) == 0) {}; // Do nothing until UDR is ready
     }
 }
 
 void usart_receive(uint8_t *data, uint16_t length) {
     // Receive 'length' bytes into the data buffer
     for (uint16_t i = 0; i < length; i++) {
-        while (( UCSR0A & (1<<RXC0)) == 0) {}; // Do nothing until UDR is ready
+        while ( !(UCSR0A & (1<<RXC0)) );// Do nothing until UDR is ready
         // Get and return received data from buffer
         data[i] = UDR0;
     }
