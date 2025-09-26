@@ -14,7 +14,7 @@ void twi_init(TWI_handler_t *twiHandler) {
         TWAR = (twiHandler->TWIConfig.ownAddress << 1); // Set slave address
     }
     // Enable the PULLUP on SDA and SCL pins
-    GPIOC->port |= (1 << 4) | (1 << 5); // SDA = PC4, SCL = PC5
+    PORTC |= (1 << 4) | (1 << 5); // SDA = PC4, SCL = PC5
 
     // Enable TWI peripheral
     TWCR = TWI_ENABLE; //When TWI is enabled, the hardware automatically takes control of PC4/PC5 and makes them behave as open-drain

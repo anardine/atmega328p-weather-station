@@ -1,6 +1,8 @@
 #ifndef SPI_H
 #define SPI_H
 
+#if USE_FLASH
+
 #include <stdint.h>
 #include "drivers/atmega328p.h"
 #include "drivers/gpio.h"
@@ -19,7 +21,6 @@ typedef struct {
 
 typedef struct 
 {
-    SPI_TypeDef *pToSPIx;
     SPI_config_t SPIConfig;
 } SPI_Handler_t;
 
@@ -48,5 +49,7 @@ uint8_t spi_write(SPI_Handler_t *spiHandler, uint8_t *data, uint32_t length);
  * @return uint8_t The byte received from SPI.
  */
 uint8_t spi_read(SPI_Handler_t *spiHandler);
+
+#endif
 
 #endif
