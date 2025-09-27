@@ -112,7 +112,7 @@
     </div>
     <div class="card kpi">
       <div class="label">Pressure</div>
-      <div><span id="press-val" class="value">--</span><span class="unit">hPa</span></div>
+      <div><span id="press-val" class="value">--</span><span class="unit">mBar</span></div>
     </div>
     <div class="card kpi">
       <div class="label">Rain</div>
@@ -128,7 +128,7 @@
   </div>
 
   <div class="footer">
-    This is an Open-Source Project. Please find more detials at https://github.com/anardine/atmega328p-weather-station .Auto-refreshes every 60s.
+    This is an Open-Source Project. Please find more detials at https://github.com/anardine/atmega328p-weather-station. Auto-refreshes every 60s.
     <div id="error" class="error"></div>
   </div>
 </div>
@@ -277,7 +277,7 @@
 
       if (!pressChart) {
         destroyChartIfExists('press-chart');
-        pressChart = buildChart(el('press-chart'), 'Pressure (hPa)', '#f59e0b', pressData, 'hPa');
+        pressChart = buildChart(el('press-chart'), 'Pressure (mBar)', '#f59e0b', pressData, 'mBar');
       } else { pressChart.data.datasets[0].data = pressData.map(p => ({ x: p.t, y: p.v })); pressChart.update(); }
 
       if (!rainChart) {
