@@ -1,14 +1,23 @@
 # ☀️🌦️ ATMEGA328P Weather Station ⛈️❄️
 Fetch data directly from Local Weather Sensors and send to a Webserver and Database in specific timeframes. Use the way you like after.
 
+## Table of Contents
+- [Project Details](#project-details)
+    - [High Level Overview of the Aplication](#high-level-overview-of-the-aplication)
+    - [Architecture of the Module](#architecture-of-the-module)
+    - [Hardware](#hardware)
+    - [About the Webserver](#about-the-webserver)
+- [Instructions to Flash and Use](#instructions-to-use-this-successfully)
+
 ## Project Details
 ### High Level Overview of the Aplication
 
 This module works by fetching data in specific configurable timeframes (default to 1 minute) from all weather sensors and sends it to the Master (ATMEGA328-PU).
 The master then sends this data to the ESP-01S which posts the data on a web server for further use.
 
-⚠️ **IMPORTANT**
-This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose.
+> ⚠️ **IMPORTANT**
+> 
+> This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose, and flashing as arduino will not work
 
 ### Architecture of the Module
 This is the architectural diagram of the design:
