@@ -7,7 +7,7 @@ Fetch data directly from Local Weather Sensors and send to a Webserver and Datab
 This module works by fetching data in specific configurable timeframes (default to 1 minute) from all weather sensors and sends it to the Master (ATMEGA328-PU).
 The master then sends this data to the ESP-01S which posts the data on a web server for further use.
 
-[!IMPORTANT]
+⚠️ **IMPORTANT**
 This does not uses the Arduino Framework and it's a direct implementation of the ATMEGA328-PU bare metal. All APIs were created for this prurpose.
 
 ### Architecture of the Module
@@ -73,7 +73,7 @@ The data collected will follow this schema after posted to a MySQL database. You
 |-----|-------------|------------|-------|---------|--------------|---------------------|
 |   0 | temperature | bme280     |  25.3 | celcius | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   1 | pressure    | bme280     |  1000 | mBar    | HOME_CENTRAL | 2025-07-01 00:00:00 |
-|   2 | rain        | mh_rain    |     1 | -       | HOME_CENTRAL | 2025-07-01 00:00:00 |
+|   2 | rain        | mh_rain    |     1 | bool    | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   3 | wind        | anemometer |  10.0 | km/h    | HOME_CENTRAL | 2025-07-01 00:00:00 |
 |   4 | humidity    | bme280     |  60.0 | percent | HOME_CENTRAL | 2025-07-01 00:00:00 |
 | ... | ...         | ...        |   ... | ...     | ...          |                     |
@@ -81,15 +81,16 @@ The data collected will follow this schema after posted to a MySQL database. You
 ```
 
 ## Instructions to Use this Successfully
-1. **Do not solder** the flash, ATMEGA328P and sensors to the board directly. There are some bugs when uploading the code using an USBasp that crashes the system. Please upload the code to the board with the sensors removed.
-2. Please **do not** yet use the `USE_FLASH` on `main.c` as this is still under implementation.
-3. This runs using the PlatformIO Enviroment. Please install the PlatformIO plugin on your IDE and open this project as a PlatformIO project. 
+1. **Do not solder the flash, ATMEGA328P and sensors to the board directly.** There are some bugs when uploading the code using an USBasp that crashes the system. Please upload the code to the board with the sensors removed.
+2. **Do not use the `USE_FLASH` on `main.c` yet** as this is still under implementation.
+3. This runs using the PlatformIO Environment. Please install the PlatformIO plugin on your IDE and open this project as a PlatformIO project. 
 4. Most of the details that the user has to provide are defined at `include/config.h`. Please set define there your Wifi SSID, password and the domain this module will send data to. You can also give this board a name, which will be the name saved as the `device` on your database.
-5. Create a database on your webserver (MySQL prefenciably and run the create table statement described at `create_table.sql`)
-6. Insert all the database details that you created at `php_api/api.php`
-7. Connect the USBasp to the SPI interface of the board
-8. Run the `Set Fuses` from PlatformIO. This will set the necessary fuses for to use the 8MHz clock.
-9. Run the `Upload` from PlatformIO. This should upload the code to the board.
-10. Insert all sensors
-11. Power the board
-12. Check if the data is being collected within the timebox defined
+5. Create a database on your webserver (MySQL preferentially and run the create table statement described at `create_table.sql`)
+6. Insert all the database details that you created at `webserver/api.php` and `webserver/fetch_data.php`
+7. Upload `webserver/api.php`, `webserver/fetch_data.php` and `webserver/weather_dashboard` on the root of your domain.
+8. Check if all sensors are removed and Connect the USBasp to the SPI interface of the board. **Please check the pinnout correctly and use the jumper for 3.3V instead of 5V on the USBAsp**
+9. Run the `Set Fuses` from PlatformIO. This will set the necessary fuses for to use the 8MHz clock.
+10. Run the `Upload` from PlatformIO. This should upload the code to the board. 
+11. Insert all sensors 
+12. Power the board 
+13. Check if the data is being collected within the timebox defined and check for any error traces reported on the dashboard footer
