@@ -98,7 +98,7 @@ The data collected will follow this schema after posted to a MySQL database. You
 6. Insert all the database details that you created at `webserver/api.php` and `webserver/fetch_data.php`
 7. Upload `webserver/api.php`, `webserver/fetch_data.php` and `webserver/weather_dashboard.html` on the root of your domain.
 8. Check if all sensors are removed and Connect the USBasp to the SPI interface of the board. **Please check the pinnout (shown below) correctly and use the jumper for 3.3V instead of 5V on the USBAsp** 
-
+```
 SPI Interface
 RST  SCK  MISO
 ┌┌──┐┌──┐┌──┐┐
@@ -106,7 +106,7 @@ RST  SCK  MISO
 │┌──┐┌──┐┌──┐│
 └└──┘└──┘└──┘┘
 GND  MOSI 3V3
-
+```
 9. Run the `Set Fuses` from PlatformIO. This will set the necessary fuses for to use the 8MHz clock.
 10. Run the `Upload` from PlatformIO. This should upload the code to the board. 
 11. Insert all sensors 
