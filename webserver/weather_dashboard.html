@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Weather Station Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --good: #34d399;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+    }
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      padding-left: max(env(safe-area-inset-left), 0px);
+      padding-right: max(env(safe-area-inset-right), 0px);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 24px; margin: 8px 0 16px; }
+    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+    select, button {
+      background: #0b1220; color: var(--text); border: 1px solid #1f2937; border-radius: 8px; padding: 8px 10px;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .card {
+      background: var(--panel); border: 1px solid #1f2937; border-radius: 12px; padding: 14px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .kpi { display: flex; flex-direction: column; gap: 6px; }
+    .kpi .label { font-size: 12px; color: var(--muted); }
+    .kpi .value { font-size: 28px; font-weight: 700; }
+    .kpi .unit { font-size: 14px; color: var(--muted); margin-left: 6px; }
+    .kpi .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-weight: 600; font-size: 14px; }
+    .pill.ok { background: rgba(52, 211, 153, 0.15); color: var(--good); border: 1px solid rgba(52,211,153,0.35); }
+    .pill.bad { background: rgba(239, 68, 68, 0.15); color: var(--bad); border: 1px solid rgba(239,68,68,0.35); }
+
+    .charts { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
+    @media (min-width: 900px) { .charts { grid-template-columns: 1fr 1fr; } }
+    .chart-card { height: clamp(240px, 32vw, 360px); }
+    .chart-card > canvas { width: 100% !important; height: 100% !important; display: block; }
+    canvas { display: block; }
+    .footer { margin-top: 14px; color: var(--muted); font-size: 12px; text-align: center; }
+    .error { color: var(--bad); }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .chart-card { height: clamp(220px, 42vw, 300px); }
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; }
+      .container { padding: 12px; }
+      .controls { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: stretch; }
+      .controls label { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }
+      select, button { width: 100%; font-size: 16px; padding: 10px 12px; }
+      .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .kpi .value { font-size: 24px; }
+      .kpi .pill { justify-content: center; }
+      .chart-card { height: clamp(200px, 60vw, 260px); }
+    }
+    @media (max-width: 380px) {
+      .grid { grid-template-columns: 1fr; }
+      .chart-card { height: clamp(180px, 68vw, 240px); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Weather Station Dashboard</h1>
+  <div class="controls">
+    <label>Range:
+      <select id="range">
+        <option value="6h">Last 6 hours</option>
+        <option value="12h">Last 12 hours</option>
+        <option value="24h" selected>Last 24 hours</option>
+        <option value="48h">Last 48 hours</option>
+        <option value="7d">Last 7 days</option>
+      </select>
+    </label>
+    <label>Device:
+      <select id="device">
+        <option value="all" selected>All devices</option>
+      </select>
+    </label>
+    <button id="refresh">Refresh</button>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <div class="grid">
+    <div class="card kpi">
+      <div class="label">Temperature</div>
+      <div><span id="temp-val" class="value">--</span><span class="unit">°C</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Humidity</div>
+      <div><span id="hum-val" class="value">--</span><span class="unit">%</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Pressure</div>
+      <div><span id="press-val" class="value">--</span><span class="unit">hPa</span></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Rain</div>
+      <div id="rain-pill" class="pill">--</div>
+    </div>
+  </div>
+
+  <div class="charts">
+    <div class="card chart-card"><canvas id="temp-chart"></canvas></div>
+    <div class="card chart-card"><canvas id="hum-chart"></canvas></div>
+    <div class="card chart-card"><canvas id="press-chart"></canvas></div>
+    <div class="card chart-card"><canvas id="rain-chart"></canvas></div>
+  </div>
+
+  <div class="footer">
+    This is an Open-Source Project. Please find more detials at https://github.com/anardine/atmega328p-weather-station .Auto-refreshes every 60s.
+    <div id="error" class="error"></div>
+  </div>
+</div>
+
+<script>
+  const apiUrl = 'fetch_data.php'; // same folder
+
+  const el = (id) => document.getElementById(id);
+  const fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', month: 'short', day: '2-digit' });
+
+  let tempChart, humChart, pressChart, rainChart;
+
+  function destroyChartIfExists(canvasId) {
+    try {
+      const existing = Chart.getChart(canvasId);
+      if (existing) existing.destroy();
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  function buildChart(ctx, label, color, data, yTitle, step = false, suggestedMin = undefined, suggestedMax = undefined) {
+    return new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [{
+          label,
+          data: data.map(p => ({ x: p.t, y: p.v })),
+          borderColor: color,
+          backgroundColor: color + '33',
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          hitRadius: 6,
+          pointStyle: 'circle',
+          tension: step ? 0 : 0.2,
+          stepped: step,
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'nearest', intersect: false },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: 'hour' },
+            ticks: { color: '#94a3b8', autoSkip: true, maxTicksLimit: 6, maxRotation: 0 },
+            grid: { color: 'rgba(148,163,184,0.15)' }
+          },
+          y: {
+            ticks: { color: '#94a3b8', maxTicksLimit: 5 },
+            grid: { color: 'rgba(148,163,184,0.15)' },
+            title: { display: true, text: yTitle, color: '#cbd5e1' },
+            suggestedMin,
+            suggestedMax
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#cbd5e1' } },
+          tooltip: {
+            callbacks: {
+              title: (items) => items.length ? new Date(items[0].parsed.x).toLocaleString() : '',
+              label: (item) => `${item.dataset.label}: ${item.parsed.y}`
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function setRainPill(isRaining) {
+    const pill = el('rain-pill');
+    pill.classList.remove('ok', 'bad');
+    if (isRaining === null || isRaining === undefined) {
+      pill.textContent = 'No Data';
+      return;
+    }
+    if (isRaining) { pill.textContent = 'Raining'; pill.classList.add('bad'); }
+    else { pill.textContent = 'No Rain'; pill.classList.add('ok'); }
+  }
+
+  function updateIndicators(latest) {
+    el('temp-val').textContent = latest.temperature != null ? latest.temperature.toFixed(1) : '--';
+    el('hum-val').textContent = latest.humidity != null ? latest.humidity.toFixed(0) : '--';
+    el('press-val').textContent = latest.pressure != null ? latest.pressure.toFixed(0) : '--';
+    setRainPill(latest.rain);
+  }
+
+  function ensureTimeAdapter() {
+    // Chart.js 4 requires a time adapter; use built-in via Luxon or custom. We'll use built-in Date adapter.
+    // Nothing to do because we use basic time scale with JS Date.
+  }
+
+  async function loadData() {
+    const range = el('range').value;
+    const device = el('device').value;
+    el('status').textContent = 'Loading...';
+    el('error').textContent = '';
+    try {
+      const res = await fetch(`${apiUrl}?range=${encodeURIComponent(range)}&device=${encodeURIComponent(device)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      // Populate device selector if needed
+      if (Array.isArray(data.devices)) {
+        const sel = el('device');
+        const current = sel.value;
+        // Build a set of options including 'all'
+        const options = ['all', ...data.devices];
+        // Only repopulate if changed in size/content or if current not in list
+        const needsUpdate = sel.options.length !== options.length || !options.every((v, i) => sel.options[i] && sel.options[i].value === v);
+        if (needsUpdate) {
+          sel.innerHTML = '';
+          options.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d === 'all' ? 'All devices' : d;
+            sel.appendChild(opt);
+          });
+          // restore selection if possible
+          if (options.includes(current)) sel.value = current;
+        }
+      }
+
+      updateIndicators(data.latest || {});
+
+      const s = data.series || { temperature: [], humidity: [], pressure: [], rain: [] };
+
+      // Create or update charts
+      const tempData = s.temperature || [];
+      const humData = s.humidity || [];
+      const pressData = s.pressure || [];
+      const rainData = (s.rain || []).map(p => ({ t: p.t, v: p.v != null ? (p.v >= 0.5 ? 1 : 0) : null }));
+
+      if (!tempChart) {
+        destroyChartIfExists('temp-chart');
+        tempChart = buildChart(el('temp-chart'), 'Temperature (°C)', '#60a5fa', tempData, '°C');
+      } else { tempChart.data.datasets[0].data = tempData.map(p => ({ x: p.t, y: p.v })); tempChart.update(); }
+
+      if (!humChart) {
+        destroyChartIfExists('hum-chart');
+        humChart = buildChart(el('hum-chart'), 'Humidity (%)', '#34d399', humData, '%', false, 0, 100);
+      } else { humChart.data.datasets[0].data = humData.map(p => ({ x: p.t, y: p.v })); humChart.update(); }
+
+      if (!pressChart) {
+        destroyChartIfExists('press-chart');
+        pressChart = buildChart(el('press-chart'), 'Pressure (hPa)', '#f59e0b', pressData, 'hPa');
+      } else { pressChart.data.datasets[0].data = pressData.map(p => ({ x: p.t, y: p.v })); pressChart.update(); }
+
+      if (!rainChart) {
+        destroyChartIfExists('rain-chart');
+        rainChart = buildChart(el('rain-chart'), 'Rain (0/1)', '#ef4444', rainData, 'Rain', true, -0.1, 1.1);
+      } else { rainChart.data.datasets[0].data = rainData.map(p => ({ x: p.t, y: p.v })); rainChart.update(); }
+
+      el('status').textContent = `Updated ${new Date().toLocaleTimeString()} (${data.range}, device: ${el('device').value})`;
+    } catch (e) {
+      console.error(e);
+      el('error').textContent = 'Failed to load data: ' + e.message + '. Ensure fetch_data.php DB credentials match api.php and the sensor_data table exists.';
+      el('status').textContent = 'Error';
+    }
+  }
+
+  function destroyAllCharts() {
+    try { if (tempChart) tempChart.destroy(); } catch(_){}
+    try { if (humChart) humChart.destroy(); } catch(_){}
+    try { if (pressChart) pressChart.destroy(); } catch(_){}
+    try { if (rainChart) rainChart.destroy(); } catch(_){}
+    destroyChartIfExists('temp-chart');
+    destroyChartIfExists('hum-chart');
+    destroyChartIfExists('press-chart');
+    destroyChartIfExists('rain-chart');
+    tempChart = humChart = pressChart = rainChart = undefined;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.__weatherDashboardInit) {
+      // Already initialized (avoid duplicate intervals/listeners)
+      loadData();
+      return;
+    }
+    window.__weatherDashboardInit = true;
+
+    ensureTimeAdapter();
+    el('refresh').addEventListener('click', loadData);
+    el('range').addEventListener('change', loadData);
+    el('device').addEventListener('change', loadData);
+    loadData();
+    if (window.__weatherDashboardInterval) clearInterval(window.__weatherDashboardInterval);
+    window.__weatherDashboardInterval = setInterval(loadData, 60000); // 60s
+  });
+
+  window.addEventListener('beforeunload', () => {
+    try { if (window.__weatherDashboardInterval) clearInterval(window.__weatherDashboardInterval); } catch(_){}
+    destroyAllCharts();
+  });
+</script>
+</body>
+</html>
