@@ -96,8 +96,17 @@ The data collected will follow this schema after posted to a MySQL database. You
 4. Most of the details that the user has to provide are defined at `include/config.h`. Please set define there your Wifi SSID, password and the domain this module will send data to. You can also give this board a name, which will be the name saved as the `device` on your database.
 5. Create a database on your webserver (MySQL preferentially and run the create table statement described at `create_table.sql`)
 6. Insert all the database details that you created at `webserver/api.php` and `webserver/fetch_data.php`
-7. Upload `webserver/api.php`, `webserver/fetch_data.php` and `webserver/weather_dashboard` on the root of your domain.
-8. Check if all sensors are removed and Connect the USBasp to the SPI interface of the board. **Please check the pinnout correctly and use the jumper for 3.3V instead of 5V on the USBAsp**
+7. Upload `webserver/api.php`, `webserver/fetch_data.php` and `webserver/weather_dashboard.html` on the root of your domain.
+8. Check if all sensors are removed and Connect the USBasp to the SPI interface of the board. **Please check the pinnout (shown below) correctly and use the jumper for 3.3V instead of 5V on the USBAsp** 
+
+SPI Interface
+RST  SCK  MISO
+┌┌──┐┌──┐┌──┐┐
+│└──┘└──┘└──┘│|
+│┌──┐┌──┐┌──┐│
+└└──┘└──┘└──┘┘
+GND  MOSI 3V3
+
 9. Run the `Set Fuses` from PlatformIO. This will set the necessary fuses for to use the 8MHz clock.
 10. Run the `Upload` from PlatformIO. This should upload the code to the board. 
 11. Insert all sensors 
