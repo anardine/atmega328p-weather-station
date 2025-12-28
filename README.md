@@ -1,6 +1,8 @@
 # ☀️🌦️ ATMEGA328P Weather Station ⛈️❄️
 Fetch data directly from Local Weather Sensors and send to a Webserver and Database in specific timeframes. Use the way you like after.
 
+![9c313f0f28ba4589b9f9a578aeba3b96](https://github.com/user-attachments/assets/b0a6ab17-f3fc-470f-b193-6b5bbbe376d8)
+
 ## Table of Contents
 - [Project Details](#project-details)
     - [High Level Overview of the Aplication](#high-level-overview-of-the-aplication)
